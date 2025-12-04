@@ -1,6 +1,6 @@
 # STIGA
 
-**Author:** Alen Kushova, Freiburg  
+**Author:** Alen Kushova  
 **Year:** 2025  
 **License:**  GNU GPL license (v3).
 
