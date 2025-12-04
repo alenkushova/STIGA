@@ -8,8 +8,23 @@
 %             time-stepping schemes. (could be better if we have cartesian
 %             domains. For that case we will design an improoved function.
 %
-%   Copyright (C) Alen Kushova, Freiburg, 4/12/2025
 %
+% DOC HERE:
+%
+%
+% ProjectName - STIGA
+% Copyright (C) 2025 Alen Kushova
+%
+% This program is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+% See <https://www.gnu.org/licenses/> for more details.
+
 
 function [geo, msh, space] = discretize(problem_data, method_data)
 % Extract the fields from the data structures into local variables
