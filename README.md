@@ -17,11 +17,11 @@ The code is provided for anyone who finds it useful, with proper attribution to 
 ## Dependencies
 This project uses the following open-source libraries:
 
-- [**gopdes**](link to gopdes repo) – library for [iga]  
-- [**nurbs**](link to nurbs repo) – library for [NURBS curves and surfaces]
+- [**GeoPDEs**](https://github.com/rafavzqz/geopdes) – research and teaching of Isogeometric Analysis, written in Octave and fully compatible with Matlab.  
+- [**nurbs**](https://sourceforge.net/p/octave/nurbs/ci/default/tree/) – library for NURBS curves and surfaces
 
-Make sure to add these libraries to the MATLAB path before running the code:
+Make sure to add these libraries to the MATLAB path before running the code, i.e. add this path in the initialize script:
 
 ```matlab
-addpath('path/to/gopdes')
-addpath('path/to/nurbs')
+addpath(genpath('path/to/geopdes'))
+addpath(genpath('path/to/nurbs'))
