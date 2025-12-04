@@ -2,7 +2,7 @@
 
 **Author:** Alen Kushova, Freiburg  
 **Year:** 2025  
-**License:** MIT License
+**License:**  GNU GPL license (v3).
 
 ---
 
