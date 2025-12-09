@@ -8,8 +8,11 @@
 %             time-stepping schemes. (could be better if we have cartesian
 %             domains. For that case we will design an improoved function.
 %
+%   CALL: 
 %
-% DOC HERE:
+%  INPUT:
+%
+% OUTPUT:
 %
 %
 % ProjectName - STIGA
