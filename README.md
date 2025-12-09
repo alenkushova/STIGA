@@ -1,16 +1,10 @@
 # STIGA
-
-**Author:** Alen Kushova  
-**Year:** 2025  
-**License:**  GNU GPL license (v3).
-
----
+Space-Time IsoGeonetric Analysis of evolutionary PDEs.
 
 ## Description
-This project contains MATLAB code developed for scientific research purposes.  
-The main goal is [...].
+This project contains MATLAB code developed mainly for scientific research purposes.  
 
-The code is provided for anyone who finds it useful, with proper attribution to the author.
+The main goal is [...].
 
 ---
 
@@ -25,3 +19,13 @@ Make sure to add these libraries to the MATLAB path before running the code, i.e
 ```matlab
 addpath(genpath('path/to/geopdes'))
 addpath(genpath('path/to/nurbs'))
+```
+
+---
+
+## License 
+Because the code depends on GPL-licensed libraries, the entire project is distributed under the GPLv3 terms.
+
+You are free to use, study, modify, and redistribute this software, provided that any distributed version (modified or not) is also released under the GPLv3. 
+
+Terms and conditions are reported in the LICENSE file but can also be found here [**GNU GENERAL PUBLIC LICENSE**](https://www.gnu.org/licenses/gpl-3.0-standalone.html).
