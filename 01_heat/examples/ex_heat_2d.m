@@ -33,7 +33,7 @@ problem_data.uex = @(x, y, t) sin(pi*x).*sin(pi*y).*exp(-t); % separable solutio
 problem_data.graduex = @(x, y, t) (cat (1, ...
                 reshape ( pi*cos(pi*x).*sin(pi*y).*exp(-t), [1, size(x)]), ...
                 reshape ( pi*cos(pi*y).*sin(pi*x).*exp(-t), [1, size(x)]), ...
-                reshape ( sin(pi*x).*sin(pi*y).*exp(-t), [1, size(t)])));
+                reshape ( -1*sin(pi*x).*sin(pi*y).*exp(-t), [1, size(t)])));
 
 % -------------------------------------------------------------------------
 % Let  u(x,y,z,t) = g(x,y,z)*f(t) be separable, then:
@@ -42,7 +42,7 @@ problem_data.graduex = @(x, y, t) (cat (1, ...
 %
 % In this case the source term is separable aswell and of the kind:
 %                     
-%     rhs =  g1(x,y,z)*f1(t) - g2(x,y,z)*f2(t)
+%     rhs =  g1(x,y,z)*f1(t) + g2(x,y,z)*f2(t)
 %
 % Then we insert a flag
 %
@@ -58,7 +58,7 @@ if problem_data.is_separable_u
   problem_data.f1=@(t) -1*exp(-t);
   problem_data.g1=@(x,y) problem_data.ux(x,y);
   problem_data.f2=@(t) problem_data.ut(t);
-  problem_data.g2=@(x,y) -pi^2*problem_data.ux(x,y);
+  problem_data.g2=@(x,y) 2*pi^2*problem_data.ux(x,y);
 else
   % write instead of 0 your non-separable right hand side:
   problem_data.f = @(x, t)   0  ; 
@@ -83,13 +83,13 @@ clear method_data
 
 p = 2; % polynomial degree of spline spaces
 i = 2; % number of dyadic refinements
-Nt = 2^i; nel_i = Nt-p+2; nel_t = Nt-p+1;
+u_ndofs = 2^i; nel_i = u_ndofs-p+2; nel_t = u_ndofs-p+1;
 
-method_data.trial_degree     = [p p p];                         % Degree of the trial splines (last is time dir)
+method_data.trial_degree     = [p p p];                       % Degree of the trial splines (last is time dir)
 method_data.trial_regularity = method_data.trial_degree-1;    % Regularity of trial the splines
-method_data.test_degree      = [p p p];                         % Degree of the test splines (last is time dir)
+method_data.test_degree      = [p p p];                       % Degree of the test splines (last is time dir)
 method_data.test_regularity  = method_data.test_degree-1;     % Regularity of the test splines
-method_data.nsub  = [nel_i nel_i nel_t];                            % Number of subdivisions
+method_data.nsub  = [nel_i nel_i nel_t];                      % Number of subdivisions
 method_data.nquad = method_data.trial_degree+1;               % Points for the Gaussian quadrature rule
 
 % list of methods: 
@@ -113,6 +113,5 @@ method_data.solver = 'GMRES';
 [geo, msh, space, u, report] = heat_st_solve (problem_data, method_data);
 
 report
-%
-%
-% plot_heat(u, problem_data.uex, space, geo)
+
+heat_st_surf(u, problem_data.uex, space, geo)

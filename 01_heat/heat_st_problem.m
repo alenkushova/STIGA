@@ -47,6 +47,8 @@ u = zeros (space.tsp_trial.ndof*space.xsp_trial.ndof, 1);
 %--------------------------------------------------------------------------
 % Applying boundary conditions in strong form
 u(drchlt_dofs) = u_drchlt;
+% Applying initial conditions in storng form
+u(1:space.xsp_trial.ndof) = u_iniz;
 
 %  Space-time internal degrees of freedom
 int_dofs = setdiff (1:space.tsp_trial.ndof*space.xsp_trial.ndof, cat(1,(1:space.xsp_trial.ndof)',drchlt_dofs)); 
@@ -75,7 +77,7 @@ switch method
     % correct sizes and definitions
     Wt = Wt'; 
     % Enforce symmetry of symmetric matrices
-    Mt = (Mt+Mt')/2; Ms = (Ms+Ms')/2; Ls = (Ls+Ls')/2;
+    % Mt = (Mt+Mt')/2; Ms = (Ms+Ms')/2; Ls = (Ls+Ls')/2;
 
     Afun = @(x) reshape(Ms(x_int_dofs,x_int_dofs) *reshape(x,intnx,intnt)*(Wt(2:end,2:end)') + ...
                         Ls(x_int_dofs,x_int_dofs) *reshape(x,intnx,intnt)*(Mt(2:end,2:end)'),  ...
@@ -83,6 +85,10 @@ switch method
 
     Adrch2int = @(x) reshape(Ms(x_int_dofs,x_drchlt_dofs)*reshape(x,drchnx,intnt)*(Wt(2:end,2:end)') + ...
                              Ls(x_int_dofs,x_drchlt_dofs)*reshape(x,drchnx,intnt)*(Mt(2:end,2:end)'), ...
+                             intnx*intnt, 1);
+
+    Ainit2int = @(x) reshape(Ms(x_int_dofs,:)*reshape(x,[],1)*(Wt(2:end,1)') + ...
+                             Ls(x_int_dofs,:)*reshape(x,[],1)*(Mt(2:end,1)'), ...
                              intnx*intnt, 1);
 
     % Assembling the rhs: 
@@ -99,7 +105,7 @@ switch method
       F = op_f_v_st_tp (space.xsp_test, space.tsp_test, msh.xmsh, msh.tmsh, f); 
     end 
     fprintf('Lifting... \n\n')
-    rhs  = F(int_dofs) - Adrch2int(u_drchlt);
+    rhs  = F(int_dofs) - Adrch2int(u_drchlt) - Ainit2int(u_iniz);
 
     if nargout == 5
       ms= Ms(x_int_dofs,x_int_dofs);
