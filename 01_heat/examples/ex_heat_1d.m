@@ -30,9 +30,8 @@ problem_data.prdc_sides     = []; % Periodic
 % Exact solution: 
 problem_data.uex = @(x, t) sin(pi*x).*exp(-t); % separable solution
 
-problem_data.graduex = @(x, t) (cat (1, ...
-                reshape ( pi*cos(pi*x).*exp(-t), [1, size(x)]), ...
-                reshape ( -1*sin(pi*x).*exp(-t), [1, size(t)])));
+problem_data.grad_uex = @(x, t) reshape ( pi*cos(pi*x).*exp(-t), [1, size(x)]);
+problem_data.dt_uex = @(x,t) reshape (-1*sin(pi*x).*exp(-t) ,[1, size(x)]);
 
 % -------------------------------------------------------------------------
 % Let  u(x,y,z,t) = g(x,y,z)*f(t) be separable, then:
@@ -81,7 +80,7 @@ problem_data.eta = 1; % parameter
 clear method_data 
 
 p = 2; % polynomial degree of spline spaces
-i = 2; % number of dyadic refinements
+i = 6; % number of dyadic refinements
 Nt = 2^i; nel_i = Nt-p+2; nel_t = Nt-p+1;
 
 method_data.trial_degree     = [p p];                         % Degree of the trial splines (last is time dir)
@@ -112,5 +111,27 @@ method_data.solver = 'M';
 [geo, msh, space, u, report] = heat_st_solve (problem_data, method_data);
 
 report
-%%
-heat_st_plot(u, problem_data.uex, space, geo)
+
+% 4) VISUALIZE THE SOLUTION
+% heat_st_plot(u, problem_data.uex, space, geo, 4)
+
+% 5) COMPUTE THE ERRORS 
+[errl2, errh1s, errh1t] = ... Asbsolute errors
+    st_h1_error_tp(space.xsp_trial,  space.tsp_trial,...
+                        msh.xmsh,  msh.tmsh,  u,  problem_data.uex, ...
+                             problem_data.dt_uex,   problem_data.grad_uex);
+
+[l2_uex, h1s_uex, h1t_uex] = ... L2-norm and h1-(semi)-norm of solution
+    st_h1_error_tp(space.xsp_trial,  space.tsp_trial,...
+                        msh.xmsh,  msh.tmsh, 0*u,  problem_data.uex, ...
+                             problem_data.dt_uex,   problem_data.grad_uex);
+
+report.rel_errl2  = errl2/l2_uex
+report.rel_errh1s = errh1s/h1s_uex
+report.rel_errh1t = errh1t/h1t_uex
+
+
+
+
+
+

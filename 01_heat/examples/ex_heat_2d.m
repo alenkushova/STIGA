@@ -30,10 +30,12 @@ problem_data.prdc_sides     = []; % Periodic
 % Exact solution: 
 problem_data.uex = @(x, y, t) sin(pi*x).*sin(pi*y).*exp(-t); % separable solution
 
-problem_data.graduex = @(x, y, t) (cat (1, ...
+problem_data.grad_uex = @(x, y, t) (cat (1, ...
                 reshape ( pi*cos(pi*x).*sin(pi*y).*exp(-t), [1, size(x)]), ...
-                reshape ( pi*cos(pi*y).*sin(pi*x).*exp(-t), [1, size(x)]), ...
-                reshape ( -1*sin(pi*x).*sin(pi*y).*exp(-t), [1, size(t)])));
+                reshape ( pi*cos(pi*y).*sin(pi*x).*exp(-t), [1, size(x)])));
+
+problem_data.dt_uex = @(x, y, t) ...
+                reshape(  -1*sin(pi*x).*sin(pi*y).*exp(-t), [1, size(t)]);
 
 % -------------------------------------------------------------------------
 % Let  u(x,y,z,t) = g(x,y,z)*f(t) be separable, then:
@@ -114,4 +116,20 @@ method_data.solver = 'GMRES';
 
 report
 
-heat_st_surf(u, problem_data.uex, space, geo)
+% 4) VISUALIZE THE SOLUTION
+% heat_st_surf(u, problem_data.uex, space, geo)
+
+% 5) COMPUTE THE ERRORS 
+[errl2, errh1s, errh1t] = ... Asbsolute errors
+    st_h1_error_tp(space.xsp_trial,  space.tsp_trial,...
+                        msh.xmsh,  msh.tmsh,  u,  problem_data.uex, ...
+                             problem_data.dt_uex,   problem_data.grad_uex);
+
+[l2_uex, h1s_uex, h1t_uex] = ... L2-norm and h1-(semi)-norm of solution
+    st_h1_error_tp(space.xsp_trial,  space.tsp_trial,...
+                        msh.xmsh,  msh.tmsh, 0*u,  problem_data.uex, ...
+                             problem_data.dt_uex,   problem_data.grad_uex);
+
+report.rel_errl2  = errl2/l2_uex
+report.rel_errh1s = errh1s/h1s_uex
+report.rel_errh1t = errh1t/h1t_uex

@@ -63,7 +63,7 @@ plot(squeeze(F(1,:,1)),esolx(:,:,it),'LineWidth',1.5);
 hold on 
 plot(squeeze(F(1,:,1)),euex(:,:,it),'-.','LineWidth',1.5);
 %axis tight; axis square;
-title('Heat solution', 'FontSize', 10);
+title(sprintf('Heat solution at t=%.2f', lables_t(it)), 'FontSize', 10);
 hold off 
 ylim([min_esol,max_esol]);
 pause(2)
