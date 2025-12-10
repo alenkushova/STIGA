@@ -10,7 +10,7 @@ fprintf(['Initialization done! Your required folders are in the path.\n\n' ...
 'Use: "path" command to print the list of folders that are included.\n\n'])
 
 % ProjectName - STIGA
-% Copyright (C) 2025 Alen Kushova
+% Copyright (C) 2025 Alen Kushova, Gabriele Loli
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

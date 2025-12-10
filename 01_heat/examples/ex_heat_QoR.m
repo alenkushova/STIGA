@@ -1,7 +1,7 @@
 % PROBLEM_NAME: <description>
 %
 % ProjectName - STIGA
-% Copyright (C) 2025 Alen Kushova
+% Copyright (C) 2025 Alen Kushova, Gabriele Loli
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

@@ -1,7 +1,7 @@
 % PROBLEM_NAME: <description>
 %
 % ProjectName - STIGA
-% Copyright (C) 2025 Alen Kushova
+% Copyright (C) 2025 Alen Kushova, Gabriele Loli
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -31,8 +31,8 @@ problem_data.prdc_sides     = []; % Periodic
 problem_data.uex = @(x, t) sin(pi*x).*exp(-t); % separable solution
 
 problem_data.graduex = @(x, t) (cat (1, ...
-                reshape ( pi*cos(pi*x).*exp(t), [1, size(x)]), ...
-                reshape ( sin(pi*x).*exp(t), [1, size(t)])));
+                reshape ( pi*cos(pi*x).*exp(-t), [1, size(x)]), ...
+                reshape ( -1*sin(pi*x).*exp(-t), [1, size(t)])));
 
 % -------------------------------------------------------------------------
 % Let  u(x,y,z,t) = g(x,y,z)*f(t) be separable, then:
@@ -57,7 +57,7 @@ if problem_data.is_separable_u
   problem_data.f1=@(t) -1*exp(-t);
   problem_data.g1=@(x) problem_data.ux(x);
   problem_data.f2=@(t) problem_data.ut(t);
-  problem_data.g2=@(x) -pi^2*sin(pi*x);
+  problem_data.g2=@(x) pi^2*sin(pi*x);
 else
   % write instead of 0 your non-separable right hand side:
   problem_data.f = @(x, t)   0  ; 
@@ -113,4 +113,4 @@ method_data.solver = 'M';
 
 report
 %%
-plot_heat(u, problem_data.uex, space, geo)
+heat_st_plot(u, problem_data.uex, space, geo)

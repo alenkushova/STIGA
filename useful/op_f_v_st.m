@@ -13,7 +13,7 @@
 %   rhs: assembled right-hand side
 % 
 % ProjectName - STIGA
-% Copyright (C) 2025 Gabriele Loli
+% Copyright (C) 2025 Alen Kushova, Gabriele Loli
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

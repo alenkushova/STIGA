@@ -40,8 +40,9 @@ function [u, dofs_st] = sp_drchlt_l2_proj_st (sp, spt, msh, msht, h, sides, isit
   end
 
   rhs  = zeros (sp.ndof, spt.ndof);
-  
+
   dofs = [];
+
   nent = 0;
   for iside = sides
     nent = nent + msh.boundary(iside).nel * sp.boundary(iside).nsh_max^2;
