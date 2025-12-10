@@ -80,7 +80,7 @@ problem_data.eta = 1; % parameter
 clear method_data 
 
 p = 2; % polynomial degree of spline spaces
-i = 6; % number of dyadic refinements
+i = 2; % number of dyadic refinements
 Nt = 2^i; nel_i = Nt-p+2; nel_t = Nt-p+1;
 
 method_data.trial_degree     = [p p];                         % Degree of the trial splines (last is time dir)
