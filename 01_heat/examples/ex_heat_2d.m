@@ -84,7 +84,7 @@ problem_data.eta = 1; % parameter
 clear method_data 
 
 p = 2; % polynomial degree of spline spaces
-i = 2; % number of dyadic refinements
+i = 4; % number of dyadic refinements
 u_ndofs = 2^i; nel_i = u_ndofs-p+2; nel_t = u_ndofs-p+1;
 
 method_data.trial_degree     = [p p p];                       % Degree of the trial splines (last is time dir)
@@ -109,7 +109,7 @@ method_data.method     = 'Galerkin';
 %           time. It uses Sherman-Morrison-Woodbury formula for the
 %           inversion of the time block factors.
 % 
-method_data.solver = 'GMRES'; 
+method_data.solver = 'LU'; 
 
 % 3) CALL TO THE SOLVER
 [geo, msh, space, u, report] = heat_st_solve (problem_data, method_data);

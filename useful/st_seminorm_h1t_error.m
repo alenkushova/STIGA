@@ -12,7 +12,9 @@ end
 valdtu = reshape(valdtu, space.ncomp, msh.nqn, msh.nel, mshT.nqn, mshT.nel);
 coeff = reshape(coeff, space.ncomp, msh.nqn, msh.nel, mshT.nqn, mshT.nel);
 ws = msh.quad_weights .* msh.jacdet;
-errl2_space = squeeze(sum(ws.*squeeze(sum((valdtu-coeff).^2,1)),[1 2]));
+errl2_space = squeeze( sum ( ws.*reshape(sum((valdtu-coeff).^2,1),...
+                                  msh.nqn, msh.nel, mshT.nqn, mshT.nel),...
+                              [1 2]));
 wt = mshT.quad_weights .* mshT.jacdet;
-errh1t = sqrt(sum(wt.*errl2_space',[1 2]));
+errh1t = sqrt(sum(wt.*errl2_space,[1 2]));
 end

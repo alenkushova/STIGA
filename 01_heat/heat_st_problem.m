@@ -77,7 +77,7 @@ switch method
     % correct sizes and definitions
     Wt = Wt'; 
     % Enforce symmetry of symmetric matrices
-    % Mt = (Mt+Mt')/2; Ms = (Ms+Ms')/2; Ls = (Ls+Ls')/2;
+     Mt = (Mt+Mt')/2; Ms = (Ms+Ms')/2; Ls = (Ls+Ls')/2;
 
     Afun = @(x) reshape(Ms(x_int_dofs,x_int_dofs) *reshape(x,intnx,intnt)*(Wt(2:end,2:end)') + ...
                         Ls(x_int_dofs,x_int_dofs) *reshape(x,intnx,intnt)*(Mt(2:end,2:end)'),  ...
