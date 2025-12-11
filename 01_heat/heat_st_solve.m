@@ -91,7 +91,6 @@ switch solver
     tol   = 10^(-8); maxit = min(numel(int_dofs),200);  
     [Pgeo, Pmsh, Pspace] = parametric_domain (problem_data, method_data);
     varout = generate_heat_pencils(numel(Pgeo)-2, Pmsh, Pspace); % numel(Pgeo)-2 = dim in space.
-    
     tic
     P = lu_heat_setup(varout);
     % Solution with GMRES and Arrow preconditioner
@@ -112,10 +111,10 @@ switch solver
     % Building the preconditioner
     fprintf('Assembling Arrow (AR) preconditioner... \n\n')
     tol   = 10^(-8); maxit = min(numel(int_dofs),200);        
-    % Load the matrices of the correct size... 
-    load(file_preconditioner,"At","Mt","Asx","Msx","Asy","Msy","Asz","Msz");
+    [Pgeo, Pmsh, Pspace] = parametric_domain (problem_data, method_data);
+    varout = generate_heat_pencils(numel(Pgeo)-2, Pmsh, Pspace); % numel(Pgeo)-2 = dim in space.
     tic
-    P = ARROW_SETUP(At,Mt,Asx,Msx,Asy,Msy,Asz,Msz);
+    P = arrow_heat_setup(varout);
     % Solution with GMRES and Arrow preconditioner
     fprintf('Solving with GMRES and Arrow (AR) preconditioner... \n\n')
     [u_inner, flag, rel_res, iter, res_vec] = gmres(Afun,rhs,[],tol,maxit,@(x) P(x));

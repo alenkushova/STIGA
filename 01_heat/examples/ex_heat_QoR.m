@@ -34,15 +34,15 @@ problem_data.prdc_sides     = []; % Periodic
 % Exact solution: 
 problem_data.uex = @(x, y, z, t) -(x.^2+y.^2-1).*(x.^2+y.^2-4).*x.*y.^2.*sin(t).*sin(z); % separable
 
-problem_data.graduex = @(x, y, z, t) (cat (1, ...
+problem_data.grad_uex = @(x, y, z, t) (cat (1, ...
                 reshape ( -2*x.*(x.^2+y.^2-4).*x.*y.^2.*sin(t).*sin(z) ...
                           -2*(x.^2+y.^2-1).*x.^2.*y.^2.*sin(t).*sin(z) ...
                           -(x.^2+y.^2-1).*(x.^2+y.^2-4).*x.*y.^2.*sin(t).*sin(z), [1, size(x)]), ...
                 reshape ( -2*y.*(x.^2+y.^2-4).*x.*y.^2.*sin(t).*sin(z) ...
                           -2*(x.^2+y.^2-1).*x.*y.^3.*sin(t).*sin(z) ...
                           -2*(x.^2+y.^2-1).*(x.^2+y.^2-4).*x.*y.*sin(t).*sin(z), [1, size(y)]), ...
-                reshape ( -(x.^2+y.^2-1).*(x.^2+y.^2-4).*x.*y.^2.*sin(t).*cos(z), [1, size(z)]), ...
-                reshape ( -(x.^2+y.^2-1).*(x.^2+y.^2-4).*x.*y.^2.*cos(t).*sin(z), [1, size(t)])));
+                reshape ( -(x.^2+y.^2-1).*(x.^2+y.^2-4).*x.*y.^2.*sin(t).*cos(z), [1, size(z)])));
+problem_data.dt_uex  =  @(x, y, z, t) reshape ( -(x.^2+y.^2-1).*(x.^2+y.^2-4).*x.*y.^2.*cos(t).*sin(z), [1, size(t)]);
 
 % -------------------------------------------------------------------------
 % Let  u(x,y,z,t) = g(x,y,z)*f(t) be separable, then:
@@ -89,7 +89,7 @@ problem_data.eta = 1;
 clear method_data 
 
 p = 2; % polynomial degree of spline spaces
-i = 2; % number of dyadic refinements
+i = 3; % number of dyadic refinements
 Nt = 2^i; nel_i = Nt-p+2; nel_t = Nt-p+1;
 
 method_data.trial_degree     = [p p p p];                                  % Degree of the trial splines (last is time dir)
@@ -100,12 +100,58 @@ method_data.nsub  = [nel_i nel_i nel_i nel_t];                        % Number o
 method_data.nquad = method_data.trial_degree+1;                       % Points for the Gaussian quadrature rule
 
 % list of methods: 
+% 'Galerkin'
+% 'Least-Squares' (NOT READY    )
+%
 method_data.method     = 'Galerkin';  
 
 % list of solvers: 
-method_data.solver = 'GMRES'; 
+% 'GMRES' = Generalized Minimal RESiduals without preconditioners.
+%    'CG' = Conjugate Gradients without preconditioners.(4 symmetric cases)
+%    'LU' = (p)GMRES solver with FD in space + LU decomposition in time.
+%    'AR' = (p)GMRES solver with FD in space + ARROW decomposition in time.
+%------- COMING SOON ------------------------------------------------------
+%    'LR' = (p)GMRES solver with FD in space + Low-Rank decomposition in
+%           time. It uses Sherman-Morrison-Woodbury formula for the
+%           inversion of the time block factors.
+% 
+method_data.solver = 'AR'; 
 
 % 3) CALL TO THE SOLVER
 [geo, msh, space, u, report] = heat_st_solve (problem_data, method_data);
 
 report
+
+% 4) VISUALIZE THE SOLUTION
+
+% TODO...
+
+% 5) COMPUTE THE ERRORS 
+[errl2, errh1s, errh1t] = ... Asbsolute errors
+    st_h1_error_tp(space.xsp_trial,  space.tsp_trial,...
+                        msh.xmsh,  msh.tmsh,  u,  problem_data.uex, ...
+                             problem_data.dt_uex,   problem_data.grad_uex);
+
+[l2_uex, h1s_uex, h1t_uex] = ... L2-norm and h1-(semi)-norm of solution
+    st_h1_error_tp(space.xsp_trial,  space.tsp_trial,...
+                        msh.xmsh,  msh.tmsh, 0*u,  problem_data.uex, ...
+                             problem_data.dt_uex,   problem_data.grad_uex);
+
+report.rel_errl2  = errl2/l2_uex;
+report.rel_errh1s = errh1s/h1s_uex;
+report.rel_errh1t = errh1t/h1t_uex;
+
+% format output fancy
+labels = { ...
+    '‖ u - u_{ex} ‖_{L²(Ωₛ × Ωₜ)}', ...
+    '‖ ∇(u - u_{ex}) ‖_{L²(Ωₛ × Ωₜ)}', ...
+    '‖ ∂ₜ(u - u_{ex}) ‖_{L²(Ωₛ × Ωₜ)}' ...
+};
+
+values = [report.rel_errl2, report.rel_errh1s, report.rel_errh1t]; 
+fprintf('%-35s | %12s\n', 'Error type', 'Value'); 
+fprintf('%s\n', repmat('-',1,50)); 
+
+for k = 1:length(values) 
+    fprintf('%-35s | %12s\n', labels{k}, values(k)); 
+end

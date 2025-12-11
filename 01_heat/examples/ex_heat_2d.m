@@ -96,7 +96,7 @@ method_data.nquad = method_data.trial_degree+1;               % Points for the G
 
 % list of methods: 
 % 'Galerkin'
-% 'Least-Squares'
+% 'Least-Squares' (NOT READY    )
 %
 method_data.method     = 'Galerkin';  
 
@@ -105,11 +105,12 @@ method_data.method     = 'Galerkin';
 %    'CG' = Conjugate Gradients without preconditioners.(4 symmetric cases)
 %    'LU' = (p)GMRES solver with FD in space + LU decomposition in time.
 %    'AR' = (p)GMRES solver with FD in space + ARROW decomposition in time.
+%------- COMING SOON ------------------------------------------------------
 %    'LR' = (p)GMRES solver with FD in space + Low-Rank decomposition in
 %           time. It uses Sherman-Morrison-Woodbury formula for the
 %           inversion of the time block factors.
 % 
-method_data.solver = 'LU'; 
+method_data.solver = 'AR'; 
 
 % 3) CALL TO THE SOLVER
 [geo, msh, space, u, report] = heat_st_solve (problem_data, method_data);
@@ -130,6 +131,21 @@ report
                         msh.xmsh,  msh.tmsh, 0*u,  problem_data.uex, ...
                              problem_data.dt_uex,   problem_data.grad_uex);
 
-report.rel_errl2  = errl2/l2_uex
-report.rel_errh1s = errh1s/h1s_uex
-report.rel_errh1t = errh1t/h1t_uex
+report.rel_errl2  = errl2/l2_uex;
+report.rel_errh1s = errh1s/h1s_uex;
+report.rel_errh1t = errh1t/h1t_uex;
+
+% format output fancy
+labels = { ...
+    '‖ u - u_{ex} ‖_{L²(Ωₛ × Ωₜ)}', ...
+    '‖ ∇(u - u_{ex}) ‖_{L²(Ωₛ × Ωₜ)}', ...
+    '‖ ∂ₜ(u - u_{ex}) ‖_{L²(Ωₛ × Ωₜ)}' ...
+};
+
+values = [report.rel_errl2, report.rel_errh1s, report.rel_errh1t]; 
+fprintf('%-35s | %12s\n', 'Error type', 'Value'); 
+fprintf('%s\n', repmat('-',1,50)); 
+
+for k = 1:length(values) 
+    fprintf('%-35s | %12s\n', labels{k}, values(k)); 
+end
