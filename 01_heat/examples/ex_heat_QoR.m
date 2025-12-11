@@ -115,7 +115,7 @@ method_data.method     = 'Galerkin';
 %           time. It uses Sherman-Morrison-Woodbury formula for the
 %           inversion of the time block factors.
 % 
-method_data.solver = 'AR'; 
+method_data.solver = 'LU'; 
 
 % 3) CALL TO THE SOLVER
 [geo, msh, space, u, report] = heat_st_solve (problem_data, method_data);

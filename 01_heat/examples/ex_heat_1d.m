@@ -101,12 +101,11 @@ method_data.method     = 'Galerkin';
 %    'CG' = Conjugate Gradients without preconditioners.(4 symmetric cases)
 %    'LU' = (p)GMRES solver with FD in space + LU decomposition in time.
 %    'AR' = (p)GMRES solver with FD in space + ARROW decomposition in time.
-%------- COMING SOON ------------------------------------------------------
 %    'LR' = (p)GMRES solver with FD in space + Low-Rank decomposition in
 %           time. It uses Sherman-Morrison-Woodbury formula for the
 %           inversion of the time block factors.
 % 
-method_data.solver = 'AR'; 
+method_data.solver = 'LR'; 
 
 % 3) CALL TO THE SOLVER
 [geo, msh, space, u, report] = heat_st_solve (problem_data, method_data);

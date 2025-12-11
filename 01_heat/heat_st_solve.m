@@ -132,10 +132,10 @@ switch solver
   case 'LR' 
     % Building the preconditioner
     tol   = 10^(-8); maxit = min(numel(int_dofs),200);        
-    % Load the matrices of the correct size... 
-    load(file_preconditioner,"At","Mt","Asx","Msx","Asy","Msy","Asz","Msz");
+    [Pgeo, Pmsh, Pspace] = parametric_domain (problem_data, method_data);
+    varout = generate_heat_pencils(numel(Pgeo)-2, Pmsh, Pspace); % numel(Pgeo)-2 = dim in space.
     tic
-    P = SMW_SETUP(At,Mt,Asx,Msx,Asy,Msy,Asz,Msz);
+    P = smw_heat_setup(varout);
     % Solution with GMRES and Arrow preconditioner
     fprintf('Solving with GMRES and Low-Rank preconditioner... \n\n')
     [u_inner, flag, rel_res, iter, res_vec] = gmres(Afun,rhs,[],tol,maxit,@(x) P(x));
