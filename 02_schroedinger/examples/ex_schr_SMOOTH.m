@@ -19,8 +19,13 @@ clear; close all; clc;
 clear problem_data  
 T = 1; problem_data.T = T ;    
 
-% problem_data.xt_geo_name = 'geo_rectangle.txt'; % for T = 2
+% in case we need the space time geo, i.e. easy outputs for 1D space.
+problem_data.xt_geo_is_needed = true; % OTHERWISE SAY 'FALSE'
+
+% problem_data.xt_geo_name = 'geo_rectangle.txt'; % for T = 2 OR: 
 problem_data.xt_geo_name = 'geo_square.txt'; % for T = 1
+
+% space and time geometries
 problem_data.x_geo_name = nrbline ([0 0], [1 0]); % univariate geo in space
 problem_data.t_geo_name = nrbline ([0 0], [T 0]); % univariate geo in time
 
@@ -114,12 +119,13 @@ ylabel('Time','Interpreter','latex')
 %% 5) COMPUTE THE ERRORS
 Uex = @(x, t) (problem_data.uex(x, t));
 rhs = @(x, t) (problem_data.f(x, t));
-[error_Graph, error_l2, error_sGraph] = schroedinger_graph_error(space.xtsp_trial, msh.xtmsh, u, Uex, rhs); % ABSOLUTE errors of the approximation
-[U_Graph, U_l2, U_sGraph] = schroedinger_graph_error(space.xtsp_trial, msh.xtmsh, 0*u, Uex, rhs); % Norm of solution u
+
+[error_Graph, error_l2, error_sGraph] = st_SG_error_tp(space.xtsp_trial, msh.xtmsh, u, Uex, rhs); % ABSOLUTE errors of the approximation
+[U_Graph, U_l2, U_sGraph] = st_SG_error_tp(space.xtsp_trial, msh.xtmsh, 0*u, Uex, rhs); % Norm of solution u
 REL_ERR_Graph = error_Graph/U_Graph % RELATIVE error in GRAPH-norm
 REL_ERR_l2 = error_l2/U_l2          % RELATIVE error in L2-norm
 
 %% 6) SAVE NUMERICAL SOLUTION
-filename = ['smooth_ps_pt/ST_SCHRODINGER_SMOOTH_1D_' method_data.preconditioner '_' method_data.solver '_ps_' num2str(d) '_pt_' num2str(d-1) '_Nt_' num2str(n*T) '_final_time_' num2str(T) '.mat'];
-save(filename)
-fprintf ('The result is saved in the file: %s \n \n', filename); 
+% filename = ['smooth_ps_pt/ST_SCHRODINGER_SMOOTH_1D_' method_data.preconditioner '_' method_data.solver '_ps_' num2str(d) '_pt_' num2str(d-1) '_Nt_' num2str(n*T) '_final_time_' num2str(T) '.mat'];
+% save(filename)
+% fprintf ('The result is saved in the file: %s \n \n', filename); 

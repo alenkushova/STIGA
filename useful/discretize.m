@@ -74,7 +74,7 @@ xsp_trial  = sp_bspline (x_knots, trial_degree(1:rdim-1), xmsh);
 tsp_trial  = sp_bspline (t_knots, trial_degree(rdim),     tmsh);
 
 % space time knots for test functions                                      % if neeeded 
-% [knots, ~]    = kntrefine(xtgeo.nurbs.knots, nsub-1, test_degree, test_regularity); 
+% [knots, ~]  = kntrefine(xtgeo.nurbs.knots, nsub-1, test_degree, test_regularity); 
 % knots   = kntunclamp(knots, test_degree, test_regularity, []);          
 
 % space knots for test functions in space
@@ -93,9 +93,7 @@ tsp_test  = sp_bspline (t_knots, test_degree(rdim),     tmsh);
 % define a stucture "space.__" with the above fields
 space = struct('xsp_trial',xsp_trial,'tsp_trial',tsp_trial,'xsp_test', xsp_test, 'tsp_test', tsp_test);
 
-
-if exist("space_dimension","var")  == 1
-  if space_dimension == "1D" % for the 'pcolor' graphs
+if xt_geo_is_needed 
     xtgeo= geo_load(xt_geo_name);                                           
     geo = struct('xtgeo',xtgeo,'xgeo',xgeo,'tgeo',tgeo);
 
@@ -108,7 +106,6 @@ if exist("space_dimension","var")  == 1
     xtsp_trial = sp_bspline (knots, trial_degree, xtmsh); 
     space = struct('xtsp_trial',xtsp_trial,'xsp_trial',xsp_trial, ...
          'tsp_trial',tsp_trial,'xsp_test', xsp_test, 'tsp_test', tsp_test);
-  end
 end
 
 end

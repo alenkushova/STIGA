@@ -19,6 +19,7 @@ clear problem_data
 T = 1; problem_data.T = T ;                                              
 
 % NO NEED OF SPACE-TIME DOMAIN.
+problem_data.xt_geo_is_needed = false;
 problem_data.x_geo_name = nrbline ([0 0], [1 0]); % space domain (1D) 
 problem_data.t_geo_name = nrbline ([0 0], [T 0]); % time domain (1D)
 

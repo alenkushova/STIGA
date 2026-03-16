@@ -19,6 +19,7 @@ clear problem_data
 T = 1; problem_data.T = T ;                                              
 
 % NO NEED OF SPACE-TIME DOMAIN.
+problem_data.xt_geo_is_needed = false;
 % 2D domain
 ring = geo_load('geo_ring.txt');
 % 3D domain  
