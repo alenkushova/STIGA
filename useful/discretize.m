@@ -41,33 +41,24 @@ for iopt  = 1:numel (data_names)
 end
 
 % load geometies
-% xtgeo= geo_load(xt_geo_name);                                            % if neeeded 
 xgeo = geo_load(x_geo_name);
 tgeo = geo_load(t_geo_name);
 % define a stucture "geo.__" with the above fields
 geo = struct('xgeo',xgeo,'tgeo',tgeo); 
-%geo = struct('xtgeo',xtgeo,'xgeo',xgeo,'tgeo',tgeo);                      % if neeeded 
 
 % define mesh structures :
 rdim = numel(trial_degree); % how many univariate dimensions we have.
-
-% space time knots for trial functions                                     % if neeeded 
-% [knots, zeta]    = kntrefine(xtgeo.nurbs.knots, nsub-1, trial_degree, trial_regularity);
-% knots   = kntunclamp(knots, trial_degree, trial_regularity, []);
 
 % space knots for trial functions in space
 [x_knots, x_zeta]= kntrefine(xgeo.nurbs.knots, nsub(1:rdim-1)-1, trial_degree(1:rdim-1), trial_regularity(1:rdim-1));
  x_knots         = kntunclamp(x_knots, trial_degree(1:rdim-1), trial_regularity(1:rdim-1), []);
 
-%time knots for trial functions in time
+% time knots for trial functions in time
 [t_knots, t_zeta]= kntrefine(tgeo.nurbs.knots, nsub(rdim)-1, trial_degree(rdim), trial_regularity(rdim));
  t_knots         = kntunclamp(t_knots, trial_degree(rdim), trial_regularity(rdim), []);
 
 % define quadrature rules 
 rule         = msh_gauss_nodes (nquad);
-
-% [qn, qw]  = msh_set_quad_nodes (zeta, rule);                             % if neeeded 
-%   xtmsh   = msh_cartesian (zeta, qn, qw, xtgeo);                         
 
 [xqn, xqw] = msh_set_quad_nodes (x_zeta, rule(1:end-1));
    xmsh    = msh_cartesian (x_zeta, xqn, xqw, xgeo);
@@ -77,10 +68,8 @@ rule         = msh_gauss_nodes (nquad);
 
 % define a stucture "msh.__" with the above fields
 msh = struct('xmsh',xmsh,'tmsh',tmsh);
-% msh = struct('xtmsh',xtmsh,'xmsh',xmsh,'tmsh',tmsh);                     % if neeeded 
 
 % define space structures for trial functions
-% xtsp_trial = sp_bspline (knots,   trial_degree,          xtmsh);         % if neeeded 
 xsp_trial  = sp_bspline (x_knots, trial_degree(1:rdim-1), xmsh);
 tsp_trial  = sp_bspline (t_knots, trial_degree(rdim),     tmsh);
 
@@ -103,4 +92,23 @@ tsp_test  = sp_bspline (t_knots, test_degree(rdim),     tmsh);
 
 % define a stucture "space.__" with the above fields
 space = struct('xsp_trial',xsp_trial,'tsp_trial',tsp_trial,'xsp_test', xsp_test, 'tsp_test', tsp_test);
+
+
+if exist("space_dimension","var")  == 1
+  if space_dimension == "1D" % for the 'pcolor' graphs
+    xtgeo= geo_load(xt_geo_name);                                           
+    geo = struct('xtgeo',xtgeo,'xgeo',xgeo,'tgeo',tgeo);
+
+    [knots, zeta]    = kntrefine(xtgeo.nurbs.knots, nsub-1, trial_degree, trial_regularity);
+    knots   = kntunclamp(knots, trial_degree, trial_regularity, []); 
+    [qn, qw]  = msh_set_quad_nodes (zeta, rule);                           
+    xtmsh   = msh_cartesian (zeta, qn, qw, xtgeo); 
+    msh = struct('xtmsh',xtmsh,'xmsh',xmsh,'tmsh',tmsh); 
+    
+    xtsp_trial = sp_bspline (knots, trial_degree, xtmsh); 
+    space = struct('xtsp_trial',xtsp_trial,'xsp_trial',xsp_trial, ...
+         'tsp_trial',tsp_trial,'xsp_test', xsp_test, 'tsp_test', tsp_test);
+  end
+end
+
 end

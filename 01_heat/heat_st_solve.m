@@ -39,14 +39,13 @@ end
 if solver == 'M'
   [Afun, rhs, u, int_dofs, Aint] = heat_st_problem(msh, space, problem_data, method_data);
 else 
-  [Afun, rhs, u, int_dofs, Aint] = heat_st_problem(msh, space, problem_data, method_data);
+  [Afun, rhs, u, int_dofs] = heat_st_problem(msh, space, problem_data, method_data);
 end    
 
 % Force computation in one singular thread
 N = maxNumCompThreads; 
 maxNumCompThreads(1);
 
-file_preconditioner = '';
 
 % Solving: 
 switch solver
