@@ -73,10 +73,6 @@ msh = struct('xmsh',xmsh,'tmsh',tmsh);
 xsp_trial  = sp_bspline (x_knots, trial_degree(1:rdim-1), xmsh);
 tsp_trial  = sp_bspline (t_knots, trial_degree(rdim),     tmsh);
 
-% space time knots for test functions                                      % if neeeded 
-% [knots, ~]  = kntrefine(xtgeo.nurbs.knots, nsub-1, test_degree, test_regularity); 
-% knots   = kntunclamp(knots, test_degree, test_regularity, []);          
-
 % space knots for test functions in space
 [x_knots, ~]= kntrefine(xgeo.nurbs.knots, nsub(1:rdim-1)-1, test_degree(1:rdim-1), test_regularity(1:rdim-1));
  x_knots    = kntunclamp(x_knots, test_degree(1:rdim-1), test_regularity(1:rdim-1), []);
@@ -86,7 +82,6 @@ tsp_trial  = sp_bspline (t_knots, trial_degree(rdim),     tmsh);
  t_knots    = kntunclamp(t_knots, test_degree(rdim), test_regularity(rdim), []);
 
 % define space structures for test functions
-% xtsp_test = sp_bspline (knots,   test_degree,          xtmsh);           % if neeeded 
 xsp_test  = sp_bspline (x_knots, test_degree(1:rdim-1), xmsh);
 tsp_test  = sp_bspline (t_knots, test_degree(rdim),     tmsh);
 
@@ -101,11 +96,17 @@ if xt_geo_is_needed
     knots   = kntunclamp(knots, trial_degree, trial_regularity, []); 
     [qn, qw]  = msh_set_quad_nodes (zeta, rule);                           
     xtmsh   = msh_cartesian (zeta, qn, qw, xtgeo); 
-    msh = struct('xtmsh',xtmsh,'xmsh',xmsh,'tmsh',tmsh); 
-    
+    msh = struct('xtmsh',xtmsh,'xmsh',xmsh,'tmsh',tmsh);    
     xtsp_trial = sp_bspline (knots, trial_degree, xtmsh); 
-    space = struct('xtsp_trial',xtsp_trial,'xsp_trial',xsp_trial, ...
+
+    % we also build the test space
+    [knots, ~]  = kntrefine(xtgeo.nurbs.knots, nsub-1, test_degree, test_regularity); 
+    knots   = kntunclamp(knots, test_degree, test_regularity, []);          
+    xtsp_test = sp_bspline (knots,   test_degree,          xtmsh);
+
+    space = struct('xtsp_trial',xtsp_trial,'xtsp_test',xtsp_test,'xsp_trial',xsp_trial, ...
          'tsp_trial',tsp_trial,'xsp_test', xsp_test, 'tsp_test', tsp_test);
+
 end
 
 end

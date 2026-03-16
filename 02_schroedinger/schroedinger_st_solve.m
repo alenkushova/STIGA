@@ -39,11 +39,7 @@ DDs  = trial_degree(1); DDt  = trial_degree(end); NNs = nsub(1); NNt = nsub(end)
 [geo, msh, space] = discretize(problem_data,method_data);
 
 % Assembling the linear system and the right hand side:
-if solver == 'M'
-  [ rhs, u, int_dofs, Afun, mat] = schrodinger_st_problem(msh, space, problem_data, method_data);
-else 
-  [Aint, rhs, u, int_dofs, Afun, mat] = schrodinger_st_problem(msh, space, problem_data, method_data);
-end  
+[Aint, rhs, u, int_dofs, Afun, mat] = schrodinger_st_problem(msh, space, problem_data, method_data);
 %force Matlab to use one single thread:
 N = maxNumCompThreads; 
 maxNumCompThreads(1);

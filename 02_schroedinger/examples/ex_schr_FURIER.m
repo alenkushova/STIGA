@@ -1,32 +1,37 @@
 close all
 clear 
 clc
-M = 1000;
+M = 1000; % precomputed solution for this M
 T = 2;
 %% PROBLEM DATA
 problem_data.T = T ;  % Final time.
+% in case we need the space time geo, i.e. easy outputs for 1D space.
+problem_data.xt_geo_is_needed = true; % OTHERWISE SAY 'FALSE'
 problem_data.xt_geo_name = 'geo_rectangle.txt'; % for T = 2
 problem_data.x_geo_name = nrbline ([0 0], [1 0]); % univariate geo in space
 problem_data.t_geo_name = nrbline ([0 0], [T 0]); % univariate geo in time
 
 % Type of boundary conditions for each side of the domain
 problem_data.nmnn_sides     = []; % Neumann 
-problem_data.drchlt_sides   = [1 2 3 ];  % Dirichlet
-problem_data.x_drchlt_sides = [1 2 ];  % Dirichlet
+problem_data.drchlt_sides   = [1 2];  % Dirichlet
 problem_data.prdc_sides     = []; % Periodic
 
+
 % Solution
-solutions = ['solutions' num2str(M) '.mat'];
-load(solutions); % or you can load previously built solutions and rhs.
+% for M = 1000 the solution have been already precomputed so we load:
+solutions = ['Fourier_sol_' num2str(M) '.mat']; load(solutions); 
+% for other values of M you must compute the solutions with the following: 
+% [uex, grad_uex, dudx, dudt, f] = Fourier_expansion(M);
+
 problem_data.uex     = @(x, t) uex(x,t);
 problem_data.graduex = @(x, t) grad_uex(x,t);
 
 % Source term
 problem_data.f = @(x, t) f(x,t);
 
-% Dirichlet boundary conditions
-problem_data.h = @(x, t, ind) problem_data.uex(x,t);
-problem_data.hx = @(x, ind) zeros (size (x)); % auxiliary function. 
+% Dirichlet data 
+problem_data.dfun = @(x, t, iside) problem_data.uex(x, t);
+problem_data.ifun = @(x, iside) problem_data.uex(x, 0);
 problem_data.space_dimension = '1D'; 
 
 % coefficients
@@ -35,7 +40,7 @@ problem_data.eta = 1;
 
 %% 2) CHOICE OF THE DISCRETIZATION PARAMETERS
 clear method_data
-n = 8; % elements per univariate direction
+n = 4; % elements per univariate direction
 d = 2;  % polynomial degrees 
 method_data.trial_degree     = [d d-1];                                    % Degree of the trial splines (last is time dir)
 method_data.trial_regularity = method_data.trial_degree-1;                 % Regularity of trial the splines
@@ -48,7 +53,7 @@ method_data.nquad      = method_data.trial_degree+1;                       % Poi
 % 'MB'  = Matlab Backslash 
 % 'CG'  = Conjugate Gradients
 % 'PCG' = Preconditioned Conjugate Gradients
-method_data.solver     = 'MB'; %'PCG'; 
+method_data.solver     = 'PCG'; 
 
 % LIST OF PRECONDITIONERS:
 % 'LUFD'  = block LU with FD in space
@@ -60,7 +65,7 @@ else
   method_data.preconditioner = 'LUFD'; % or choose another preconditioner 
 end
 %% 3) CALL TO THE SOLVER 
-[geometry, msh, space, u, report] = solve_schrodinger_st (problem_data, method_data);
+[geometry, msh, space, u, report] = schroedinger_st_solve (problem_data, method_data);
 report
 
 %% 4) POST PROCESSING 
@@ -90,12 +95,12 @@ ylabel('Time','Interpreter','latex')
 %% 5) COMPUTE THE ERRORS
 Uex = @(x, t) (problem_data.uex(x, t));
 rhs = @(x, t) (problem_data.f(x, t));
-[error_Graph, error_l2, error_sGraph] = schroedinger_graph_error(space.xtsp_trial, msh.xtmsh, u, Uex, rhs); % ABSOLUTE errors of the approximation
-[U_Graph, U_l2, U_sGraph] = schroedinger_graph_error(space.xtsp_trial, msh.xtmsh, 0*u, Uex, rhs); % Norm of solution u
+[error_Graph, error_l2, error_sGraph] = st_SG_error_tp(space.xtsp_trial, msh.xtmsh, u, Uex, rhs); % ABSOLUTE errors of the approximation
+[U_Graph, U_l2, U_sGraph] = st_SG_error_tp(space.xtsp_trial, msh.xtmsh, 0*u, Uex, rhs); % Norm of solution u
 REL_ERR_Graph = error_Graph/U_Graph % RELATIVE error in GRAPH-norm
 REL_ERR_l2 = error_l2/U_l2          % RELATIVE error in L2-norm
 
 %% 6) SAVE NUMERICAL SOLUTION
-filename = ['furier_ps_pt/ST_SCHRODINGER_FURIER_1D_' method_data.preconditioner '_' method_data.solver '_ps_' num2str(d) '_pt_' num2str(d-1) '_Nt_' num2str(n*T) '_final_time_' num2str(T) '.mat'];
-save(filename)
-fprintf ('The result is saved in the file: %s \n \n', filename);
+% filename = ['furier_ps_pt/ST_SCHRODINGER_FURIER_1D_' method_data.preconditioner '_' method_data.solver '_ps_' num2str(d) '_pt_' num2str(d-1) '_Nt_' num2str(n*T) '_final_time_' num2str(T) '.mat'];
+% save(filename)
+% fprintf ('The result is saved in the file: %s \n \n', filename);

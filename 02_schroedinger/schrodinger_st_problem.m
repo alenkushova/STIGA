@@ -96,7 +96,9 @@ matrices.Bs = Bs(2:end-1,2:end-1);
 % %___
 
 fprintf('Building rhs... \n\n')
-F = op_f_sv_st_tp (space.xsp_test, space.tsp_test, msh.xmsh, msh.tmsh, f); % here is the projection of f in S(V)
+F = op_f_sv_tp (space.xtsp_test, msh.xtmsh, f); % here is the projection of f in S(V)
+% New implementation to be checked: 
+% F_new = op_f_sv_st_tp (space.xsp_test, space.tsp_test, msh.xmsh, msh.tmsh, f); 
 
 if isequal(solver,'MB') 
   A = kron(Lt,Ms) + kron(Mt,Bs) -1i*kron(Wt,Ls') + 1i*kron(Wt',Ls);
@@ -115,10 +117,9 @@ elseif isequal(preconditioner ,'ichol') || isequal(preconditioner ,'ilu') || ise
                      (Ls(x_int_dofs,x_int_dofs)')*reshape(x,intnx,intnt) *(1i*(Wt(2:end,2:end)')),  ...
                       intnx*intnt, 1);
   fprintf('Lifting... \n\n')
-  rhs = F(int_dofs) - A(int_dofs, drchlt_dofs)*u_drchlt;
+  rhs = F(int_dofs) - A(int_dofs, drchlt_dofs)*u_drchlt - A(int_dofs, 1:space.xsp_test.ndof)*u_iniz ; 
 else
   Aint = 0;
-%  A = kron(Lt,Ms) + kron(Mt,Bs) -1i*kron(Wt,Ls') + 1i*kron(Wt',Ls);
   Afun = @(x) reshape(Ms(x_int_dofs,x_int_dofs)  *reshape(x,intnx,intnt) *(    Lt(2:end,2:end)') + ...
                       Bs(x_int_dofs,x_int_dofs)  *reshape(x,intnx,intnt) *(    Mt(2:end,2:end)') + ...
                       Ls(x_int_dofs,x_int_dofs)  *reshape(x,intnx,intnt) *(1i* Wt(2:end,2:end))  - ...
@@ -130,6 +131,7 @@ else
                            Ls(x_int_dofs,x_drchlt_dofs)  *reshape(x,drchnx,intnt) *(1i* Wt(2:end,2:end) ) - ...
                           (Ls(x_drchlt_dofs,x_int_dofs)')*reshape(x,drchnx,intnt) *(1i*(Wt(2:end,2:end)')),  ...
                            intnx*intnt, 1);
+
   Ainit2int = @(x) reshape(Ms(x_int_dofs,:)  *reshape(x,[],1) *(    Lt(2:end,1)') + ...
                            Bs(x_int_dofs,:)  *reshape(x,[],1) *(    Mt(2:end,1)') + ...
                            Ls(x_int_dofs,:)  *reshape(x,[],1) *(1i* Wt(1,2:end) ) - ...
