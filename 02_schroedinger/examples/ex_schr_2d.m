@@ -1,10 +1,26 @@
-close all
-clear 
-clc
-T = 1;
-%% PROBLEM DATA
-problem_data.T = T ;  % Final time.
-problem_data.xt_geo_name = 'geo_cube.txt'; % for T = 2
+% PROBLEM_NAME: <description>
+%
+% ProjectName - STIGA
+% Copyright (C) 2025 Alen Kushova
+%
+% This program is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+% See <https://www.gnu.org/licenses/> for more details.
+%
+
+clear; close all; clc;
+
+% 1) PHYSICAL DATA OF THE PROBLEM
+clear problem_data  
+T = 1; problem_data.T = T ;    
+
+problem_data.xt_geo_name = 'geo_cube.txt'; % for T = 1
 problem_data.x_geo_name  = 'geo_square.txt'; % univariate geo in space
 problem_data.t_geo_name  = nrbline ([0 0], [T 0]); % univariate geo in time
 problem_data.x1_geo_name = nrbline ([0 0], [1 0]); % univariate geo in time
@@ -42,14 +58,15 @@ problem_data.fx2 = {@(y) esp(y), @(y) esp(y), @(y) (4*a0*y.^2/omg^4).*esp(y), @(
 problem_data.ft  = {@(t) esp(t), @(t) esp(t), @(t) esp(t), @(t) (2*a0*t/omg^2).*esp(t)};
 problem_data.h = @(x, y, t, ind) problem_data.uex(x, y, t);
 problem_data.hx = @(x, y, ind) zeros (size (x)); % auxiliary function. 
+
 problem_data.gmm = 1i;
 problem_data.eta = 1;
 problem_data.space_dimension = '2D'; 
 
 % 2) CHOICE OF THE DISCRETIZATION PARAMETERS
 clear method_data
-n = 8;
-d = 2;
+n = 32;
+d = 4;
 method_data.trial_degree     = [d d d-1]; % Degree of the splines (last is time dir)
 method_data.trial_regularity = method_data.trial_degree-1; % Regularity of the splines
 method_data.test_degree      = [d d d-1]; % Degree of the splines (last is time dir)
@@ -73,36 +90,13 @@ else
   method_data.preconditioner = 'LUFD'; % or choose another preconditioner 
 end
 
-%% 3) CALL TO THE SOLVER 
-%[geometry, msh, space, u, report] = solve_schrodinger_st (problem_data, method_data);
+% 3) CALL TO THE SOLVER 
 [geometry, msh, space, u, report] = solve_schrodinger_st_on_cartesian_domains (problem_data, method_data);
 report
 
-%% 4) POST-PROCESSING
-% output_file = 'smooth_2D/Schrodinger_st_2D';
-% 
-% vtk_pts = {linspace(0, 1, 200), linspace(0, 1, 200), linspace(0, 1, 20)};
-% fprintf ('The result is saved in the file %s \n \n', output_file);
-% sp_to_vtk (u, space.xtsp_trial, geometry.xtgeo, vtk_pts, output_file, 'u')
-
-% Plot of the figure:
-% figure
-% sp_plot_solution (real(u), space.xtsp_trial, geometry.xtgeo, [40 40 40], [20 20 20]);
-
-%% 5) DISPLAY ERRORS 
-% compute the error for the real part:
-% Uex = @(x, y, t) (problem_data.uex(x, y, t));
-% rhs = @(x, y, t) (problem_data.f(x, y,t));
-% [error_Graph, error_l2, error_sGraph] = schroedinger_graph_error(space.xtsp_trial, msh.xtmsh, u, Uex, rhs) % ABSOLUTE errors of the approximation
-% [U_Graph, U_l2, U_sGraph] = schroedinger_graph_error(space.xtsp_trial, msh.xtmsh, 0*u, Uex, rhs) % Norm of solution u
-% REL_ERR_Graph = error_Graph/U_Graph; % RELATIVE error in GRAPH-norm
-% REL_ERR_l2 = error_l2/U_l2;          % RELATIVE error in L2-norm
-% 
-
-%% 6) SAVE NUMERICAL SOLUTION
-%filename = ['smooth_2D/ST_SCHRODINGER_SMOOTH_2D_' method_data.preconditioner '_' method_data.solver '_degree_' num2str(d) '_Nt_' num2str(n*T) '_final_time_' num2str(T) '.mat'];
-filename = ['smooth_2D_ps_pt/ST_SCHRODINGER_SMOOTH_2D_' method_data.preconditioner '_' method_data.solver '_ps_' num2str(d) '_pt_' num2str(d-1) '_Nt_' num2str(n*T) '_final_time_' num2str(T) '.mat'];
-save(filename)
-fprintf ('The result is saved in the file: %s \n \n', filename);
+% 4) SAVE NUMERICAL SOLUTION for tables
+% filename = ['smooth_2D_ps_pt/ST_SCHRODINGER_SMOOTH_2D_' method_data.preconditioner '_' method_data.solver '_ps_' num2str(d) '_pt_' num2str(d-1) '_Nt_' num2str(n*T) '_final_time_' num2str(T) '.mat'];
+% save(filename)
+% fprintf ('The result is saved in the file: %s \n \n', filename);
 
 

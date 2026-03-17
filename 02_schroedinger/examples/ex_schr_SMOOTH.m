@@ -62,8 +62,8 @@ problem_data.eta = 1;
 
 % 2) CHOICE OF THE DISCRETIZATION PARAMETERS
 clear method_data
-n = 4; % elements per univariate direction
-d = 2;  % polynomial degrees 
+n = 64; % elements per univariate direction
+d = 4;  % polynomial degrees 
 method_data.trial_degree     = [d d-1];                                    % Degree of the trial splines (last is time dir)
 method_data.trial_regularity = method_data.trial_degree-1;                 % Regularity of trial the splines
 method_data.test_degree      = [d d-1];                                    % Degree of the test splines (last is time dir)

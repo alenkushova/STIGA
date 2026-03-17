@@ -1,4 +1,4 @@
-% SCHRODINGER_ST_PROBLEM: <description>
+% SCHROEDINGER_ST_PROBLEM: <description>
 %
 %   CALL: 
 %
@@ -20,7 +20,7 @@
 % MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 % See <https://www.gnu.org/licenses/> for more details.
 
-function [Aint, rhs, u, int_dofs, Afun, matrices] = schrodinger_st_problem(msh, space, problem_data, method_data)
+function [Aint, rhs, u, int_dofs, Afun, matrices] = schroedinger_st_problem(msh, space, problem_data, method_data)
 data_names = fieldnames (problem_data);
 for iopt  = 1:numel (data_names)
   eval ([data_names{iopt} '= problem_data.(data_names{iopt});']);
@@ -37,7 +37,7 @@ u = zeros (space.tsp_trial.ndof*space.xsp_trial.ndof, 1);
 [~, x_drchlt_dofs] = sp_drchlt_l2_proj (space.xsp_trial, msh.xmsh, ifun, drchlt_sides);
 
 % Space-time boundary degrees of freedom ----------------------------------
-[u_drchlt, drchlt_dofs, u_iniz] = heat_st_boundary_data(...
+[u_drchlt, drchlt_dofs, u_iniz] = schroedinger_st_boundary_data(...
   space.xsp_trial, space.tsp_trial, msh.xmsh, msh.tmsh, dfun, drchlt_sides, 'no');
 % Here 'yes' is an optional variable (default 'no'). It referst to the 
 % question: is the inital condition applied weakly? If yes, then the first 
@@ -96,9 +96,14 @@ matrices.Bs = Bs(2:end-1,2:end-1);
 % %___
 
 fprintf('Building rhs... \n\n')
-F = op_f_sv_tp (space.xtsp_test, msh.xtmsh, f); % here is the projection of f in S(V)
-% New implementation to be checked: 
-% F_new = op_f_sv_st_tp (space.xsp_test, space.tsp_test, msh.xmsh, msh.tmsh, f); 
+
+if isequal(space_dimension,'1D') 
+ F = op_f_sv_tp (space.xtsp_test, msh.xtmsh, f); % here is the projection of f in S(V)
+else
+ % For dim > 1 we can use this function that does not require the XT_ structures. 
+ F = op_f_sv_st_tp (space.xsp_test, space.tsp_test, msh.xmsh, msh.tmsh, f); 
+ % CHECK THIS FUNCTION.
+end
 
 if isequal(solver,'MB') 
   A = kron(Lt,Ms) + kron(Mt,Bs) -1i*kron(Wt,Ls') + 1i*kron(Wt',Ls);

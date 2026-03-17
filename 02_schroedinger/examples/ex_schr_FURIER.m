@@ -1,13 +1,31 @@
-close all
-clear 
-clc
+% PROBLEM_NAME: <description>
+%
+% ProjectName - STIGA
+% Copyright (C) 2025 Alen Kushova, Gabriele Loli
+%
+% This program is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+% See <https://www.gnu.org/licenses/> for more details.
+%
+
+clear; close all; clc;
 M = 1000; % precomputed solution for this M
-T = 2;
-%% PROBLEM DATA
-problem_data.T = T ;  % Final time.
+
+% 1) PHYSICAL DATA OF THE PROBLEM
+clear problem_data  
+T = 2; problem_data.T = T ;    
+
 % in case we need the space time geo, i.e. easy outputs for 1D space.
 problem_data.xt_geo_is_needed = true; % OTHERWISE SAY 'FALSE'
+
 problem_data.xt_geo_name = 'geo_rectangle.txt'; % for T = 2
+% problem_data.xt_geo_name = 'geo_square.txt'; % for T = 1
 problem_data.x_geo_name = nrbline ([0 0], [1 0]); % univariate geo in space
 problem_data.t_geo_name = nrbline ([0 0], [T 0]); % univariate geo in time
 
@@ -38,10 +56,10 @@ problem_data.space_dimension = '1D';
 problem_data.gmm = 1i;
 problem_data.eta = 1;
 
-%% 2) CHOICE OF THE DISCRETIZATION PARAMETERS
+% 2) CHOICE OF THE DISCRETIZATION PARAMETERS
 clear method_data
-n = 4; % elements per univariate direction
-d = 2;  % polynomial degrees 
+n = 64; % elements per univariate direction
+d = 4;  % polynomial degrees 
 method_data.trial_degree     = [d d-1];                                    % Degree of the trial splines (last is time dir)
 method_data.trial_regularity = method_data.trial_degree-1;                 % Regularity of trial the splines
 method_data.test_degree      = [d d-1];                                    % Degree of the test splines (last is time dir)
