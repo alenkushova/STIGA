@@ -1,3 +1,11 @@
+%% This routine requires 'miga' packege 
+% To compute the errors on a the finer grids, which are saved in the file 
+% 'errors_on_finer_mesh.mat', we implemented this routine that requires 
+% 'miga' packege. To get the 'miga' packege please contact 
+%
+%  Dr. Andrea Bressan, e-mail: andrea.bressan@imati.cnr.it 
+%
+
 interi = [8 16 32 64 128 256];
 v_rel_err = zeros(3,6);
 for p = 1:3
