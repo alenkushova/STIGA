@@ -58,7 +58,7 @@ problem_data.eta = 1;
 
 % 2) CHOICE OF THE DISCRETIZATION PARAMETERS
 clear method_data
-n = 4; % elements per univariate direction
+n = 64; % elements per univariate direction
 d = 4;  % polynomial degrees 
 method_data.trial_degree     = [d d-1];                                    % Degree of the trial splines (last is time dir)
 method_data.trial_regularity = method_data.trial_degree-1;                 % Regularity of trial the splines
@@ -87,29 +87,29 @@ end
 report
 
 %% 4) POST PROCESSING 
-% vtk_pts = {linspace(0, 1, 100), linspace(0, T, 100)};
-% [eu, F] = sp_eval (u, space.xtsp_trial, geometry.xtgeo, vtk_pts);
-% [X, Y]  = deal (squeeze(F(1,:,:)), squeeze(F(2,:,:)));
-% figure ('Units', 'pixels', 'Position', [150 200 1000 350])
-% subplot (1,2,1)
-% h1 = pcolor (X, Y, real(eu));
-% colorbar
-% colormap jet
-% h1.EdgeColor = 'none';
-% h1.FaceColor = 'interp';
-% title ('Numerical solution: $$\Re(u_h)$$','Interpreter','latex'), axis tight
-% xlabel('Space','Interpreter','latex')
-% ylabel('Time','Interpreter','latex')
-% subplot (1,2,2)
-% h2 = pcolor (X, Y, real(problem_data.uex (X,Y)));
-% colorbar
-% colormap jet
-% h2.EdgeColor = 'none';
-% h2.FaceColor = 'interp';
-% title ('Exact solution: $$\Re(u)$$','Interpreter','latex'), axis tight
-% xlabel('Space','Interpreter','latex')
-% ylabel('Time','Interpreter','latex')
-% 
+vtk_pts = {linspace(0, 1, 100), linspace(0, T, 100)};
+[eu, F] = sp_eval (u, space.xtsp_trial, geometry.xtgeo, vtk_pts);
+[X, Y]  = deal (squeeze(F(1,:,:)), squeeze(F(2,:,:)));
+figure ('Units', 'pixels', 'Position', [150 200 1000 350])
+subplot (1,2,1)
+h1 = pcolor (X, Y, real(eu));
+colorbar
+colormap jet
+h1.EdgeColor = 'none';
+h1.FaceColor = 'interp';
+title ('Numerical solution: $$\Re(u_h)$$','Interpreter','latex'), axis tight
+xlabel('Space','Interpreter','latex')
+ylabel('Time','Interpreter','latex')
+subplot (1,2,2)
+h2 = pcolor (X, Y, real(problem_data.uex (X,Y)));
+colorbar
+colormap jet
+h2.EdgeColor = 'none';
+h2.FaceColor = 'interp';
+title ('Exact solution: $$\Re(u)$$','Interpreter','latex'), axis tight
+xlabel('Space','Interpreter','latex')
+ylabel('Time','Interpreter','latex')
+
 %% 5) COMPUTE THE ERRORS
 Uex = @(x, t) (problem_data.uex(x, t));
 rhs = @(x, t) (problem_data.f(x, t));
@@ -119,6 +119,6 @@ REL_ERR_Graph = error_Graph/U_Graph % RELATIVE error in GRAPH-norm
 REL_ERR_l2 = error_l2/U_l2          % RELATIVE error in L2-norm
 
 %% 6) SAVE NUMERICAL SOLUTION
-filename = ['ST_SCHRODINGER_FURIER_1D_' method_data.preconditioner '_' method_data.solver '_ps_' num2str(d) '_pt_' num2str(d-1) '_Nt_' num2str(n*T) '_final_time_' num2str(T) '.mat'];
-save(filename)
-fprintf ('The result is saved in the file: %s \n \n', filename);
+% filename = ['ST_SCHRODINGER_FURIER_1D_' method_data.preconditioner '_' method_data.solver '_ps_' num2str(d) '_pt_' num2str(d-1) '_Nt_' num2str(n*T) '_final_time_' num2str(T) '.mat'];
+% save(filename)
+% fprintf ('The result is saved in the file: %s \n \n', filename);
