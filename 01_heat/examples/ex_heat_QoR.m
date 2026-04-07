@@ -52,7 +52,7 @@ problem_data.dt_uex  =  @(x, y, z, t) reshape ( -(x.^2+y.^2-1).*(x.^2+y.^2-4).*x
 %
 % In this case the source term is separable aswell and of the kind:
 %                     
-%     rhs =  g1(x,y,z)*f1(t) - g2(x,y,z)*f2(t)
+%     rhs =  g1(x,y,z)*f1(t) + g2(x,y,z)*f2(t)
 %
 % Then we insert a flag
 %

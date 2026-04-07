@@ -16,7 +16,20 @@
 clear; close all; clc;
 % 1) PHYSICAL DATA OF THE PROBLEM
 clear problem_data  
-T = 1; problem_data.T = T ;                                              
+T = 1; problem_data.T = T ;    
+
+% Regularity parameter alpha > 0 for u = |x - 1/2|^alpha * exp(-t):
+% - alpha>= 2: Classical solution (C^2). The second derivative is 
+%              continuous.
+% - 1<alpha<2: Strong solution (W^{2,p}). The first derivative is 
+%              continuous, but the Laplacian (second derivative) blows up 
+%              at the singularity x = 1/2.
+% - alpha = 1: Weak solution (Lipschitz). The second derivative behaves 
+%              like a Dirac Delta distribution at x = 1/2.
+% - 0<alpha<1: Singular/Hölder solution. The gradient (slope) is infinite 
+%              at x = 1/2.
+alpha = 1.5; problem_data.alpha = alpha;
+
 
 % NO NEED OF SPACE-TIME DOMAIN.
 problem_data.xt_geo_is_needed = false;
@@ -29,12 +42,12 @@ problem_data.drchlt_sides   = [1 2];  % Dirichlet
 problem_data.prdc_sides     = []; % Periodic
 
 % Exact solution: 
-problem_data.uex = @(x, t) 1./sqrt(4*pi*t).*exp(-(x-1/2).^2./(4*t)); % separable solution
+problem_data.uex      = @(x, t)          (abs(x-1/2).^alpha  ).*exp(-t);   % separable solution
 
-problem_data.grad_uex = @(x, t) reshape (-(x-1/2)./(2*t).*...
-                                        problem_data.uex(x,t) ,[1, size(x)]);
-problem_data.dt_uex = @(x,t) reshape (((x-1/2).^2./(4*t.^2) - 1./(2*t)).*...
-                                        problem_data.uex(x,t) ,[1, size(x)]);
+problem_data.grad_uex = @(x, t) reshape (alpha*(abs(x-1/2).^(alpha-1)).*sign(x-1/2).*exp(-t),...
+                                         [1, size(x)]);
+problem_data.dt_uex   = @(x, t) reshape (-(abs(x-1/2).^alpha  ).*exp(-t), ...
+                                         [1, size(x)]);
 
 % -------------------------------------------------------------------------
 % Let  u(x,y,z,t) = g(x,y,z)*f(t) be separable, then:
@@ -43,26 +56,26 @@ problem_data.dt_uex = @(x,t) reshape (((x-1/2).^2./(4*t.^2) - 1./(2*t)).*...
 %
 % In this case the source term is separable aswell and of the kind:
 %                     
-%     rhs =  g1(x,y,z)*f1(t) - g2(x,y,z)*f2(t)
+%     rhs =  g1(x,y,z)*f1(t) + g2(x,y,z)*f2(t)
 %
 % Then we insert a flag
 %
-problem_data.is_separable_u = false; 
+problem_data.is_separable_u = true; 
 %
 % that controls the separability.
 %
 if problem_data.is_separable_u 
   % if it is true you define 
-  problem_data.ux  = @(x) sin(pi*x); % space component of solution
+  problem_data.ux  = @(x) abs(x-1/2).^alpha; % space component of solution
   problem_data.ut  = @(t) exp(-t);   % time component of solution
   % and for the right hand side
   problem_data.f1=@(t) -1*exp(-t);
   problem_data.g1=@(x) problem_data.ux(x);
   problem_data.f2=@(t) problem_data.ut(t);
-  problem_data.g2=@(x) pi^2*sin(pi*x);
+  problem_data.g2=@(x) -alpha*(alpha-1)*abs(x-1/2).^(alpha-2);
 else
   % write instead of 0 your non-separable right hand side:
-  problem_data.f = @(x, t)   0.*problem_data.uex(x,t); 
+  problem_data.f = @(x, t) -(abs(x-1/2).^(alpha) + alpha*(alpha-1)*abs(x-1/2).^(alpha-2)).*exp(-t); 
 end
 % N.B. 
 % if you want to use non-separable rhs format for separables rhs then use
@@ -83,8 +96,8 @@ problem_data.eta = 1; % parameter
 clear method_data 
 
 p = 3; % polynomial degree of spline spaces
-i = 3; % number of dyadic refinements
-Nt = 2^i; nel_i = Nt-p+2; nel_t = Nt-p+1;
+i = 6; % number of dyadic refinements
+Nt = 2^i+1; nel_i = Nt-p+2; nel_t = Nt-p+1;
 
 method_data.trial_degree     = [p p];                         % Degree of the trial splines (last is time dir)
 method_data.trial_regularity = method_data.trial_degree-1;    % Regularity of trial the splines
@@ -108,7 +121,7 @@ method_data.method     = 'Galerkin';
 %           time. It uses Sherman-Morrison-Woodbury formula for the
 %           inversion of the time block factors.
 % 
-method_data.solver = 'M'; 
+method_data.solver = 'LU'; 
 
 % 3) CALL TO THE SOLVER
 [geo, msh, space, u, report] = heat_st_solve (problem_data, method_data);

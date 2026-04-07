@@ -61,11 +61,12 @@ fig=figure();
 for it=1:numel(t{:})
 plot(squeeze(F(1,:,1)),esolx(:,:,it),'LineWidth',1.5);
 hold on 
-plot(squeeze(F(1,:,1)),euex(:,:,it),'-.','LineWidth',1.5);
+plot(squeeze(F(1,:,1)),euex(:,:,it),':','LineWidth',1.5);
 %axis tight; axis square;
 title(sprintf('Heat solution at t=%.2f', lables_t(it)), 'FontSize', 10);
 hold off 
 ylim([min_esol,max_esol]);
+legend('u_h','u')
 pause(2)
 
 end

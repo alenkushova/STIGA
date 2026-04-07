@@ -41,7 +41,7 @@ problem_data.dt_uex = @(x,t) reshape (-1*sin(pi*x).*exp(-t) ,[1, size(x)]);
 %
 % In this case the source term is separable aswell and of the kind:
 %                     
-%     rhs =  g1(x,y,z)*f1(t) - g2(x,y,z)*f2(t)
+%     rhs =  g1(x,y,z)*f1(t) + g2(x,y,z)*f2(t)
 %
 % Then we insert a flag
 %
