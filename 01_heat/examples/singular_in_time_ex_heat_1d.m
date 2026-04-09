@@ -28,7 +28,7 @@ T = 1; problem_data.T = T ;
 %              like a Dirac Delta distribution at x = 1/2.
 % - 0<alpha<1: Singular/Hölder solution. The gradient (slope) is infinite 
 %              at x = 1/2.
-alpha = 1.5; problem_data.alpha = alpha;
+kmax = 100; problem_data.kmax = kmax;
 
 
 % NO NEED OF SPACE-TIME DOMAIN.
@@ -42,11 +42,11 @@ problem_data.drchlt_sides   = [1 2];  % Dirichlet
 problem_data.prdc_sides     = []; % Periodic
 
 % Exact solution: 
-problem_data.uex      = @(x, t)          (abs(x-1/2).^alpha  ).*exp(-t);   % separable solution
+problem_data.uex      = @(x, t) heat_weak_sol(x,t,kmax);   % separable solution
 
-problem_data.grad_uex = @(x, t) reshape (alpha*(abs(x-1/2).^(alpha-1)).*sign(x-1/2).*exp(-t),...
+problem_data.grad_uex = @(x, t) reshape (grad_heat_weak_sol(x,t,kmax),...
                                          [1, size(x)]);
-problem_data.dt_uex   = @(x, t) reshape (-(abs(x-1/2).^alpha  ).*exp(-t), ...
+problem_data.dt_uex   = @(x, t) reshape (dt_heat_weak_sol(x,t,kmax),...
                                          [1, size(x)]);
 
 % -------------------------------------------------------------------------
@@ -60,22 +60,22 @@ problem_data.dt_uex   = @(x, t) reshape (-(abs(x-1/2).^alpha  ).*exp(-t), ...
 %
 % Then we insert a flag
 %
-problem_data.is_separable_u = true; 
+problem_data.is_separable_u = false; 
 %
 % that controls the separability.
 %
 if problem_data.is_separable_u 
   % if it is true you define 
-  problem_data.ux  = @(x) (abs(x-1/2)).^alpha; % space component of solution
-  problem_data.ut  = @(t) exp(-t);   % time component of solution
+  problem_data.ux  = @(x) 0*x; % space component of solution
+  problem_data.ut  = @(t) 0*t; %  time component of solution
   % and for the right hand side
-  problem_data.f1=@(t) -1*exp(-t);
+  problem_data.f1=@(t) problem_data.ut(t);
   problem_data.g1=@(x) problem_data.ux(x);
   problem_data.f2=@(t) problem_data.ut(t);
-  problem_data.g2=@(x) -alpha*(alpha-1)*(abs(x-1/2)).^(alpha-2);
+  problem_data.g2=@(x) problem_data.ux(x);
 else
   % write instead of 0 your non-separable right hand side:
-  problem_data.f = @(x, t) -((abs(x-1/2)).^(alpha) + alpha*(alpha-1)*(abs(x-1/2)).^(alpha-2)).*exp(-t); 
+  problem_data.f = @(x, t) 0*heat_weak_sol(x,t,kmax); 
 end
 % N.B. 
 % if you want to use non-separable rhs format for separables rhs then use
@@ -96,7 +96,7 @@ problem_data.eta = 1; % parameter
 clear method_data 
 
 p = 3; % polynomial degree of spline spaces
-i = 6; % number of dyadic refinements
+i = 7; % number of dyadic refinements
 Nt = 2^i; nel_i = Nt-p+2; nel_t = Nt-p+1;
 
 method_data.trial_degree     = [p p];                         % Degree of the trial splines (last is time dir)
