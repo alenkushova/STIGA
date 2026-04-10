@@ -59,6 +59,7 @@ fig=figure();
 % fig.WindowState = 'maximized';
 
 for it=1:numel(t{:})
+   subplot(2,npts/2,it) % per vedere in un unico frame.
 plot(squeeze(F(1,:,1)),esolx(:,:,it),'LineWidth',1.5);
 hold on 
 plot(squeeze(F(1,:,1)),euex(:,:,it),':','LineWidth',1.5);
@@ -67,7 +68,7 @@ title(sprintf('Heat solution at t=%.2f', lables_t(it)), 'FontSize', 10);
 hold off 
 ylim([min_esol,max_esol]);
 legend('u_h','u')
-pause(2)
+%   pause(2)
 
 end
 

@@ -95,7 +95,7 @@ problem_data.eta = 1; % parameter
 % 2) CHOICE OF THE DISCRETIZATION PARAMETERS
 clear method_data 
 
-p = 3; % polynomial degree of spline spaces
+p = 6; % polynomial degree of spline spaces
 i = 6; % number of dyadic refinements
 Nt = 2^i; nel_i = Nt-p+2; nel_t = Nt-p+1;
 
@@ -123,13 +123,51 @@ method_data.method     = 'Galerkin';
 % 
 method_data.solver = 'LU'; 
 
+% 3.0) SOLVE FIRST THE PROBLEM WITH CRANK-NICOLSON METHOD IN TIME _________
+method_data.n_time_intervals = 9;
+problem_data.f = @(x, t)   -((abs(x-1/2)).^(alpha) + alpha*(alpha-1)*(abs(x-1/2)).^(alpha-2)).*exp(-t);  
+[geo, msh, space, u] = heat_crank_nicolson_solve (problem_data, method_data);
+% plot of solution with crank nicolson
+xp={linspace(0,1,50)}; % punti di valutazione in spazio
+t={linspace(0,1,method_data.n_time_intervals+1)}; % punti di valutazione in tempo
+lables_t = geo.tgeo.map(t);
+esolx = []; euex  = [];
+for tpnt = 1: numel(t{:})
+    tt = lables_t(tpnt);
+    euex = cat(3,euex, problem_data.uex(xp{:}, tt));
+    [evs, F] = sp_eval (u(:,tpnt), space.xsp_trial, geo.xgeo,xp);
+    esolx = cat(3,esolx,evs);
+end
+min_eu = min(esolx(:));
+max_eu = max(esolx(:));
+min_eexu = min(euex(:));
+max_eexu = max(euex(:));
+min_esol = min(min_eu,min_eexu);
+max_esol = max(max_eu,max_eexu);
+
+fig=figure();
+% fig.WindowState = 'maximized';
+for it=1:numel(t{:})
+subplot(2,(method_data.n_time_intervals+1)/2,it) % per vedere in un unico frame.
+plot(squeeze(F(1,:,1)),esolx(:,:,it),'LineWidth',1.5);
+hold on 
+plot(squeeze(F(1,:,1)),euex(:,:,it),':','LineWidth',1.5);
+%axis tight; axis square;
+title(sprintf('Heat solution at t=%.2f', lables_t(it)), 'FontSize', 10);
+hold off 
+ylim([min_esol,max_esol]);
+legend('u_h','u')
+%   pause(2)
+end 
+%__________________________________________________________________________
+
 % 3) CALL TO THE SOLVER
 [geo, msh, space, u, report] = heat_st_solve (problem_data, method_data);
 
 report
 
 % 4) VISUALIZE THE SOLUTION
- heat_st_plot(u, problem_data.uex, space, geo, 4)
+ heat_st_plot(u, problem_data.uex, space, geo, 10)
 
 % 5) COMPUTE THE ERRORS 
 [errl2, errh1s, errh1t] = ... Asbsolute errors
