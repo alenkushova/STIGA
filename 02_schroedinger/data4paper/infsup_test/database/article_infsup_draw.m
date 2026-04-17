@@ -5,7 +5,8 @@ figure
 load('gal_degree_2_infsup_trial_graf_test_l2_norms.mat');
 loglog(h,infsup,'LineWidth',1.5);
 grid on; hold on; 
-xlabel('$$ h $$',Interpreter='latex'); ylabel('$$ \alpha_h $$',Interpreter='latex');
+xlabel('$$ h $$','FontSize', 14, Interpreter='latex'); 
+ylabel('$$ \alpha_h $$','FontSize', 14,Interpreter='latex');
 load('gal_degree_3_infsup_trial_graf_test_l2_norms.mat');
 loglog(h,infsup,'--','LineWidth',1.5);
 load('gal_degree_4_infsup_trial_graf_test_l2_norms.mat');
@@ -18,7 +19,8 @@ figure
 load('ls_degree_2_infsup_trial_graf_test_l2_norms.mat');
 loglog(h,infsup,'LineWidth',1.5);
 grid on; hold on; 
-xlabel('$$ h $$',Interpreter='latex'); ylabel('$$ \alpha_h $$',Interpreter='latex');
+xlabel('$$ h $$','FontSize', 14, Interpreter='latex'); 
+ylabel('$$ \alpha_h $$','FontSize', 14,Interpreter='latex');
 load('ls_degree_3_infsup_trial_graf_test_l2_norms.mat');
 loglog(h,infsup,'--','LineWidth',1.5);
 load('ls_degree_4_infsup_trial_graf_test_l2_norms.mat');

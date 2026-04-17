@@ -109,6 +109,7 @@ h2.FaceColor = 'interp';
 title ('Exact solution: $$\Re(u)$$','Interpreter','latex'), axis tight
 xlabel('Space','Interpreter','latex')
 ylabel('Time','Interpreter','latex')
+fontsize(14,"points")
 
 %% 5) COMPUTE THE ERRORS
 Uex = @(x, t) (problem_data.uex(x, t));

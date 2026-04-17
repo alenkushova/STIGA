@@ -21,7 +21,7 @@ for i = 1 : 6
     err_l2  = [err_l2 REL_ERR_l2];
     err_G   = [err_G REL_ERR_Graph];
 end
-    deg = ['$p_s = $' num2str(grad) ', $p_t = $' num2str(grad-1) '.'];
+    deg = ['$p_s = $ ' num2str(grad) ', $p_t = $ ' num2str(grad-1) '.'];
     loglog(NN,err_G,symbols{grad-1},'Color',colors(grad-1),...
         'MarkerFaceColor',colors(grad-1),'Linewidth',1.5,'DisplayName',deg)
     % loglog(NN,err_l2,'-s','Color',colors(grad-1),...
@@ -35,9 +35,12 @@ end
 % loglog(NN,3*NN.^(1/5),'-.','Color','black','Linewidth',1.5,'DisplayName','$$h^{0.2}$$')
 
 legend('Location','southeast','Interpreter','latex')
-title('Error convergence','Interpreter','latex')
-xlabel('$$h$$','Interpreter','latex')
+% title('Error convergence','Interpreter','latex')
+xlabel('$$h$$', 'Interpreter','latex')
 ylabel('$$||u-u_h||_{V}/||u||_{V}$$','Interpreter','latex')
+ylim([10^(-12) 1])
+fontsize(14,'points')
+legend(FontSize=12)
 
 %%
 %==========================================================================
@@ -78,6 +81,9 @@ end
 %loglog(NN,3*NN.^(1/5),'-.','Color','black','Linewidth',1.5,'DisplayName','$$h^{0.2}$$')
 
 legend('Location','southeast','Interpreter','latex')
-title('Error convergence','Interpreter','latex')
+%title('Error convergence','Interpreter','latex')
 xlabel('$$h$$','Interpreter','latex')
 ylabel('$$||u-u_h||_{L^2(\mathcal{Q})}/||u||_{L^2(\mathcal{Q})}$$','Interpreter','latex')
+ylim([10^(-14) 10^(-2)])
+fontsize(14,'points')
+legend(FontSize=12)
