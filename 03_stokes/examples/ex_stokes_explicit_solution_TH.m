@@ -54,7 +54,7 @@ method_data.nquad      = method_data.degree+2; % number of quadrature points (+2
 % save(filname)
 
 %% post-processing
-nframes = 11;
-plot_vel_pres(vel, pres, space, geo, nframes, 'explicit_solution');
-plot_exact_vel_pres(problem_data, geo, nframes, 'exact_explicit_solution');
+% nframes = 11;
+% plot_vel_pres(vel, pres, space, geo, nframes, 'explicit_solution');
+% plot_exact_vel_pres(problem_data, geo, nframes, 'exact_explicit_solution');
 
