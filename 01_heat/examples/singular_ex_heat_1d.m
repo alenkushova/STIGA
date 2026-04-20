@@ -28,7 +28,7 @@ T = 1; problem_data.T = T ;
 %              like a Dirac Delta distribution at x = 1/2.
 % - 0<alpha<1: Singular/Hölder solution. The gradient (slope) is infinite 
 %              at x = 1/2.
-alpha = 1.05; problem_data.alpha = alpha;
+alpha = 2; problem_data.alpha = alpha;
 
 
 % NO NEED OF SPACE-TIME DOMAIN.
@@ -60,7 +60,7 @@ problem_data.dt_uex   = @(x, t) reshape (-(abs(x-1/2).^alpha  ).*exp(-t), ...
 %
 % Then we insert a flag
 %
-problem_data.is_separable_u = true; 
+problem_data.is_separable_u = false; 
 %
 % that controls the separability.
 %
@@ -75,7 +75,7 @@ if problem_data.is_separable_u
   problem_data.g2=@(x) -alpha*(alpha-1)*(abs(x-1/2)).^(alpha-2);
 else
   % write instead of 0 your non-separable right hand side:
-  problem_data.f = @(x, t) -((abs(x-1/2)).^(alpha) + alpha*(alpha-1)*(abs(x-1/2)).^(alpha-2)).*exp(-t); 
+  problem_data.f = @(x, t) (-(abs(x-1/2)).^alpha - alpha*(alpha-1)*(abs(x-1/2)).^(alpha-2)).*exp(-t); 
 end
 % N.B. 
 % if you want to use non-separable rhs format for separables rhs then use
@@ -96,7 +96,7 @@ problem_data.eta = 1; % parameter
 clear method_data 
 
 p = 1; % polynomial degree of spline spaces
-i = 8; % number of dyadic refinements
+i = 6; % number of dyadic refinements
 N = 2^i; % this will be the size of matrice. We want to have it the same 
          % size both for univariate space and time factors. So we do:
 if mod(p,2) == 0
@@ -189,7 +189,7 @@ method_data.solver = 'LU';
 report
 
 % 4) VISUALIZE THE SOLUTION
-% heat_st_plot(u, problem_data.uex, space, geo, 10)
+ heat_st_plot(u, problem_data.uex, space, geo, 10)
 
 % 5) COMPUTE THE ERRORS 
 [errl2, errh1s, errh1t] = ... Asbsolute errors
@@ -223,6 +223,6 @@ end
 fprintf('\n \n')
 
 %% 6) SAVE THE RESULTS
-filename = ['singular_solution_tests/ST_ps_' num2str(p) '_pt_' num2str(p) '_alpha_' num2str(alpha) '_N_' num2str(N) '.mat'];
-save(filename)
-fprintf ('The result is saved in the file: %s \n \n', filename);
+% filename = ['singular_solution_tests/ST_ps_' num2str(p) '_pt_' num2str(p) '_alpha_' num2str(alpha) '_N_' num2str(N) '.mat'];
+% save(filename)
+% fprintf ('The result is saved in the file: %s \n \n', filename);

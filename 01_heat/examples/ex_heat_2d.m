@@ -49,7 +49,7 @@ problem_data.dt_uex = @(x, y, t) ...
 %
 % Then we insert a flag
 %
-problem_data.is_separable_u = true; 
+problem_data.is_separable_u = false; 
 %
 % that controls the separability.
 %
@@ -64,7 +64,7 @@ if problem_data.is_separable_u
   problem_data.g2=@(x,y) 2*pi^2*problem_data.ux(x,y);
 else
   % write instead of 0 your non-separable right hand side:
-  problem_data.f = @(x, t)   0  ; 
+  problem_data.f = @(x,y,t) (-sin(pi*x).*sin(pi*y) + 2*pi^2*sin(pi*x).*sin(pi*y)).*exp(-t) ; 
 end
 % N.B. 
 % if you want to use non-separable rhs format for separables rhs then use
@@ -119,7 +119,7 @@ method_data.solver = 'LR';
 report
 
 % 4) VISUALIZE THE SOLUTION
-% heat_st_surf(u, problem_data.uex, space, geo)
+heat_st_surf(u, problem_data.uex, space, geo)
 
 % 5) COMPUTE THE ERRORS 
 [errl2, errh1s, errh1t] = ... Asbsolute errors

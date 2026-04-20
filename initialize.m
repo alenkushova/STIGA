@@ -2,6 +2,7 @@ addpath (genpath ('C:\Users\403061\Documents\Unipv\st_schroedinger\geopdes')) % 
 addpath (genpath ('C:\Users\403061\Documents\Unipv\st_schroedinger\nurbs'))   % my local path to nurbs
 addpath (genpath ('01_heat'))
 addpath (genpath ('02_schroedinger'))
+addpath (genpath ('03_stokes'))
 addpath (genpath ('preconditioners'))
 addpath (genpath ('useful'))
 

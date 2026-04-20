@@ -27,6 +27,9 @@
 
 
 function rhs = op_f_v_st(spv,spt,msh,mshT,coeff)
+if ndims(coeff)==4
+    coeff = reshape(coeff,[1,size(coeff)]);
+end
 
 coeff = reshape (permute(coeff,[1 2 4 3 5]),spv.ncomp,msh.nqn*mshT.nqn,msh.nel,mshT.nel);
 
