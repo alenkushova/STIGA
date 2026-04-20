@@ -28,7 +28,7 @@ T = 1; problem_data.T = T ;
 %              like a Dirac Delta distribution at x = 1/2.
 % - 0<alpha<1: Singular/Hölder solution. The gradient (slope) is infinite 
 %              at x = 1/2.
-alpha = 1.5; problem_data.alpha = alpha;
+alpha = 1.05; problem_data.alpha = alpha;
 
 
 % NO NEED OF SPACE-TIME DOMAIN.
@@ -95,16 +95,38 @@ problem_data.eta = 1; % parameter
 % 2) CHOICE OF THE DISCRETIZATION PARAMETERS
 clear method_data 
 
-p = 6; % polynomial degree of spline spaces
-i = 6; % number of dyadic refinements
-Nt = 2^i; nel_i = Nt-p+2; nel_t = Nt-p+1;
+p = 1; % polynomial degree of spline spaces
+i = 8; % number of dyadic refinements
+N = 2^i; % this will be the size of matrice. We want to have it the same 
+         % size both for univariate space and time factors. So we do:
+if mod(p,2) == 0
+    nel_i = N +1 -p+2; % Abbiamo aggiunto il +1 per ottenere in spazion un 
+                        % numero dispari di elementi in [0,1]. La
+                        % singolarità non è su un knot vector. Però
+                        % potrebbe ancora essere su un punto di quadratura.
+    nel_t = N +1 -p+1; % La scelta in tempo deve essere coerente con 
+                        % quella in spazio. 
+else
+    nel_i = N-p+2; % Abbiamo un numero dispari di elementi in [0,1]. La 
+                    % singolarità non è quindi su un knot vector. Potrebbe 
+                    % essere ancora su un punto di quadratura. Lo
+                    % sistemiamo sotto.
+    nel_t = N-p+1; % La scelta in tempo deve essere coerente con quella in 
+                    % spazio. 
+end
 
 method_data.trial_degree     = [p p];                         % Degree of the trial splines (last is time dir)
 method_data.trial_regularity = method_data.trial_degree-1;    % Regularity of trial the splines
 method_data.test_degree      = [p p];                         % Degree of the test splines (last is time dir)
 method_data.test_regularity  = method_data.test_degree-1;     % Regularity of the test splines
 method_data.nsub  = [nel_i nel_t];                            % Number of subdivisions
-method_data.nquad = method_data.trial_degree+1;               % Points for the Gaussian quadrature rule
+
+% Dobbiamo evitare che la singolarità in 1/2 sia un punto di quadratura.
+if mod(p,2) == 0
+  method_data.nquad = method_data.trial_degree+2; % Points for the Gaussian quadrature rule
+else
+  method_data.nquad = method_data.trial_degree+1; % Points for the Gaussian quadrature rule
+end
 
 % list of methods: 
 % 'Galerkin'
@@ -124,41 +146,41 @@ method_data.method     = 'Galerkin';
 method_data.solver = 'LU'; 
 
 % 3.0) SOLVE FIRST THE PROBLEM WITH CRANK-NICOLSON METHOD IN TIME _________
-method_data.n_time_intervals = 9;
-problem_data.f = @(x, t)   -((abs(x-1/2)).^(alpha) + alpha*(alpha-1)*(abs(x-1/2)).^(alpha-2)).*exp(-t);  
-[geo, msh, space, u] = heat_crank_nicolson_solve (problem_data, method_data);
-% plot of solution with crank nicolson
-xp={linspace(0,1,50)}; % punti di valutazione in spazio
-t={linspace(0,1,method_data.n_time_intervals+1)}; % punti di valutazione in tempo
-lables_t = geo.tgeo.map(t);
-esolx = []; euex  = [];
-for tpnt = 1: numel(t{:})
-    tt = lables_t(tpnt);
-    euex = cat(3,euex, problem_data.uex(xp{:}, tt));
-    [evs, F] = sp_eval (u(:,tpnt), space.xsp_trial, geo.xgeo,xp);
-    esolx = cat(3,esolx,evs);
-end
-min_eu = min(esolx(:));
-max_eu = max(esolx(:));
-min_eexu = min(euex(:));
-max_eexu = max(euex(:));
-min_esol = min(min_eu,min_eexu);
-max_esol = max(max_eu,max_eexu);
-
-fig=figure();
-% fig.WindowState = 'maximized';
-for it=1:numel(t{:})
-subplot(2,(method_data.n_time_intervals+1)/2,it) % per vedere in un unico frame.
-plot(squeeze(F(1,:,1)),esolx(:,:,it),'LineWidth',1.5);
-hold on 
-plot(squeeze(F(1,:,1)),euex(:,:,it),':','LineWidth',1.5);
-%axis tight; axis square;
-title(sprintf('Heat solution at t=%.2f', lables_t(it)), 'FontSize', 10);
-hold off 
-ylim([min_esol,max_esol]);
-legend('u_h','u')
-%   pause(2)
-end 
+% method_data.n_time_intervals = 9;
+% problem_data.f = @(x, t)   -((abs(x-1/2)).^(alpha) + alpha*(alpha-1)*(abs(x-1/2)).^(alpha-2)).*exp(-t);  
+% [geo, msh, space, u] = heat_crank_nicolson_solve (problem_data, method_data);
+% % plot of solution with crank nicolson
+% xp={linspace(0,1,50)}; % punti di valutazione in spazio
+% t={linspace(0,1,method_data.n_time_intervals+1)}; % punti di valutazione in tempo
+% lables_t = geo.tgeo.map(t);
+% esolx = []; euex  = [];
+% for tpnt = 1: numel(t{:})
+%     tt = lables_t(tpnt);
+%     euex = cat(3,euex, problem_data.uex(xp{:}, tt));
+%     [evs, F] = sp_eval (u(:,tpnt), space.xsp_trial, geo.xgeo,xp);
+%     esolx = cat(3,esolx,evs);
+% end
+% min_eu = min(esolx(:));
+% max_eu = max(esolx(:));
+% min_eexu = min(euex(:));
+% max_eexu = max(euex(:));
+% min_esol = min(min_eu,min_eexu);
+% max_esol = max(max_eu,max_eexu);
+% 
+% fig=figure();
+% % fig.WindowState = 'maximized';
+% for it=1:numel(t{:})
+% subplot(2,(method_data.n_time_intervals+1)/2,it) % per vedere in un unico frame.
+% plot(squeeze(F(1,:,1)),esolx(:,:,it),'LineWidth',1.5);
+% hold on 
+% plot(squeeze(F(1,:,1)),euex(:,:,it),':','LineWidth',1.5);
+% %axis tight; axis square;
+% title(sprintf('Heat solution at t=%.2f', lables_t(it)), 'FontSize', 10);
+% hold off 
+% ylim([min_esol,max_esol]);
+% legend('u_h','u')
+% %   pause(2)
+% end 
 %__________________________________________________________________________
 
 % 3) CALL TO THE SOLVER
@@ -167,7 +189,7 @@ end
 report
 
 % 4) VISUALIZE THE SOLUTION
- heat_st_plot(u, problem_data.uex, space, geo, 10)
+% heat_st_plot(u, problem_data.uex, space, geo, 10)
 
 % 5) COMPUTE THE ERRORS 
 [errl2, errh1s, errh1t] = ... Asbsolute errors
@@ -198,3 +220,9 @@ fprintf('%s\n', repmat('-',1,50));
 for k = 1:length(values) 
     fprintf('%-35s | %12s\n', labels{k}, values(k)); 
 end
+fprintf('\n \n')
+
+%% 6) SAVE THE RESULTS
+filename = ['singular_solution_tests/ST_ps_' num2str(p) '_pt_' num2str(p) '_alpha_' num2str(alpha) '_N_' num2str(N) '.mat'];
+save(filename)
+fprintf ('The result is saved in the file: %s \n \n', filename);

@@ -22,8 +22,7 @@ T = 2; problem_data.T = T ;
 % in case we need the space time geo, i.e. easy outputs for 1D space.
 problem_data.xt_geo_is_needed = true; % OTHERWISE SAY 'FALSE'
 
-problem_data.xt_geo_name = 'geo_rectangle.txt'; % for T = 2 OR: 
-% problem_data.xt_geo_name = 'geo_square.txt'; % for T = 1
+problem_data.xt_geo_name = nrbsquare([0 0], 1, T);
 
 % space and time geometries
 problem_data.x_geo_name = nrbline ([0 0], [1 0]); % univariate geo in space
@@ -92,7 +91,7 @@ end
 report
 
 %% 4) POST PROCESSING 
-vtk_pts = {linspace(0, 1, 100), linspace(0, T, 100)};
+vtk_pts = {linspace(0, 1, 100), linspace(0, 1, 100)};
 [eu, F] = sp_eval (u, space.xtsp_trial, geometry.xtgeo, vtk_pts);
 [X, Y]  = deal (squeeze(F(1,:,:)), squeeze(F(2,:,:)));
 
