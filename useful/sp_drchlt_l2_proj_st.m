@@ -1,13 +1,17 @@
 % SP_DRCHLT_L2_PROJ_ST: assign the degrees of freedom of Dirichlet boundaries through an L2 projection.
 %
-%   [u, dofs] = sp_drchlt_l2_proj_st (sp, msh, h, sides)
+%   [u, dofs_st] = sp_drchlt_l2_proj_st (sp, spt, msh, msht, h, sides, isitweak)
 %
 % INPUT:
 %
-%  sp:    object defining the space of discrete functions (see sp_vector)
-%  msh:   object defining the domain partition and the quadrature rule (see msh_cartesian)
-%  h:     function handle to compute the Dirichlet condition
-%  sides: boundary sides on which a Dirichlet condition is imposed
+%  sp:       object defining the space of discrete functions in space (see sp_vector)
+%  spt:      object defining the space of discrete functions in time (see sp_scalar)
+%  msh:      object defining the space domain partition and the quadrature rule (see msh_cartesian)
+%  msht:     object defining the time domain partition and the quadrature rule (see msh_cartesian)
+%  h:        function handle to compute the Dirichlet condition
+%  sides:    boundary sides on which a Dirichlet condition is imposed
+%  isitweak: flah 'yes' or 'no' (default) either the initial conditions are imposed weakly. 
+%
 %
 % OUTPUT:
 %

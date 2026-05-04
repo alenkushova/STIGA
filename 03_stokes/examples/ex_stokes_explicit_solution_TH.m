@@ -1,10 +1,11 @@
 T = 1; % final time 
-n = 8; % number of subdivisions in space
-d = 3; % polynomial degree of pressure space
+n = 5; % number of subdivisions in space
+d = 1; % polynomial degree of pressure space
 
 viscosity = 1; % funzione costante
 
-% definiamo i dati esatti del problema (soluzioni e sorgenti)
+% definiamo i dati esatti del problema (soluzioni e sorgenti) la soluzione
+% è presa dall'articolo di Stainbach - 
 syms x y t;
 sym_velexx = (exp(-t)-1)*x^2*(x-1)^2*(4*y^3-6*y^2+2*y);
 sym_velexy = (1-exp(-t))*y^2*(y-1)^2*(4*x^3-6*x^2+2*x);
@@ -26,13 +27,15 @@ problem_data.viscosity =  @(x, y) ones (size (x));
 % Dirichlet data 
 problem_data.dfun = @(x,y,t,iside) problem_data.velex(x,y,t);
 
-method_data.degree     = [d d d];  % degree of the trial pressure space 
-method_data.regularity = method_data.degree-1; % regularity of the trial pressure space
+method_data.trial_degree     = [d d d];  % degree of the trial pressure space 
+method_data.trial_regularity = method_data.trial_degree-1; % regularity of the trial pressure space
+method_data.test_degree     = [d d d];  % degree of the trial pressure space 
+method_data.test_regularity = method_data.test_degree-1; % regularity of the trial pressure space
 method_data.nsub       = [n n n];  % number of subdivisions 
-method_data.nquad      = method_data.degree+2; % number of quadrature points (+2 cuz vel \in degree+1)
+method_data.nquad      = method_data.trial_degree+2; % number of quadrature points (+2 cuz vel \in degree+1)
 
 % CALL TO THE SOLVER
-[geo, msh, space, vel, pres, report] = solve_stokes_st(problem_data, method_data);
+[geo, msh, space, vel, pres, report] = stokes_st_solve(problem_data, method_data);
 
 % Absolute error computation
 % pres_errl2 = st_l2_error_pressures_tp(space.spp,space.spt_pres,msh.xmsh,msh.tmsh,pres,problem_data.presex);
@@ -54,7 +57,7 @@ method_data.nquad      = method_data.degree+2; % number of quadrature points (+2
 % save(filname)
 
 %% post-processing
-% nframes = 11;
-% plot_vel_pres(vel, pres, space, geo, nframes, 'explicit_solution');
-% plot_exact_vel_pres(problem_data, geo, nframes, 'exact_explicit_solution');
+nframes = 11;
+plot_vel_pres(vel, pres, space, geo, nframes, 'explicit_solution');
+plot_exact_vel_pres(problem_data, geo, nframes, 'exact_explicit_solution');
 
