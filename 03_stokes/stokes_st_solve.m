@@ -71,7 +71,7 @@ msh.tmsh = tmsh; msh.xmsh = xmsh; msh.xtmsh = xtmsh;
 % into space and time. 
 degree_ps = trial_degree(1:end-1);          degree_pt = trial_degree(end);
 regularity_ps = trial_regularity(1:end-1);  regularity_pt = trial_regularity(end);
-nsub_ps = nsub(1:end-1);              nsub_pt = nsub(end);
+nsub_ps = nsub(1:end-1);                    nsub_pt = nsub(end);
 
 % And the spline spaces in time direction of degree pt (both for pres/vel)
 knots_pt = kntrefine (tgeo.nurbs.knots, nsub_pt-1, degree_pt, regularity_pt);
@@ -226,62 +226,44 @@ rhs_pres = -Bdrchl2int(vel(full_drchlt_dofs));
 rhs = [rhs_vel ; rhs_pres ; zeros(intnt,1)];
 
 fprintf('Assembling Arrow (AR) preconditioner for velocity block... \n\n')
-parametric_problem_data = problem_data; 
-square = nrbextrude( nrbline ([0 0], [1 0]), [0,1]); % square NURBS surface
-parametric_problem_data.geo_space = 'geo_square.txt'; % square NURBS surface as .txt
-parametric_problem_data.geo_space_time = nrbextrude(square, [0 0 1]); % NURBS volume
+% we define two cell structures 'varout' with the univariate matrices, 
+% first we do it for the first component and then for the second component. 
+varout = {};
+varout{1,end+1} ='At';  varout{2,end} = Wt; 
+varout{1,end+1} ='Mt';  varout{2,end} = Mt; 
 
-% define parametric spaces
-[Pgeo, Pmsh, Pspace] = discretize_stokes(problem_data,method_data);
-% Pspace contains paremtric spaces velocity and pressure (and time space)
-% Pspace.spv = spazio spline per le velocità sul dominio parametrico.
-% Pspace.spp = spazio spline per le pressioni sul dominio parametrico.
-% Pspace.spt_vel  = spazio spline in tempo per le velocità
-% ""      ""_pres = spazio spline in tempo per le pressioni ma è lo stesso
-%                   spazio in tempo delle velocità.
-cell_geo = cell(1, dim + 2); 
-cell_mesh = cell(1, dim + 2);
-cell_space_1 = cell(2, dim + 2);
-cell_space_2 = cell(2, dim + 2);
+stiff_lables = {'Asx', 'Asy', 'Asz'};
+mass_lables = {'Msx', 'Msy', 'Msz'};
 
 for i = 2:dim+1
   j = i-1;
-  cell_geo{i}   = geo_load(nrbline ([0 0], [1 0]));
-  rule     = msh_gauss_nodes (nquad(j));
-  [qn, qw] = msh_set_quad_nodes (Pmsh.xmsh.breaks(j), rule);
-  cell_mesh{i}   = msh_cartesian (Pmsh.xmsh.breaks(j), qn, qw, cell_geo{i});
-  cell_space_1{1,i} = Pspace.spv.scalar_spaces{1}.sp_univ(j);
-  cell_space_1{2,i} = cell_space_1{1,i}; 
-  cell_space_2{1,i} = Pspace.spv.scalar_spaces{2}.sp_univ(j);
-  cell_space_2{2,i} = cell_space_2{1,i}; 
+  geo = geo_load(nrbline ([0 0], [1 0]));
+  [knots, zeta] = kntrefine (geo.nurbs.knots, nsub(j)-1, trial_degree(j)+1, trial_regularity(j));
+  rule      = msh_gauss_nodes (nquad(j));
+  [qn, qw]  = msh_set_quad_nodes (zeta, rule);
+  msh = msh_cartesian (zeta, qn, qw, geo);
+  % Univariate spline spaces in direction i for the first component. For TH
+  % elements it is the same also for the second component. 
+  space = sp_bspline (knots, trial_degree(j)+1, msh);
+ 
+  stif = op_gradu_gradv_tp (space, space, msh); % NON STO INCLUDENDO VISCOSITà DIVERSE DA 1.
+  mass = op_u_v_tp (space, space, msh); % matrice di massa
+  stif = (stif(2:end-1,2:end-1) + stif(2:end-1,2:end-1)')/2;
+  mass = (mass(2:end-1,2:end-1) + mass(2:end-1,2:end-1)')/2;
+
+  varout{1,end+1} = stiff_lables{j}; varout{2,end} = stif; 
+  varout{1,end+1} = mass_lables{j}; varout{2,end} = mass;
 end
 
-cell_geo{end} = Pgeo.tgeo;
-cell_mesh{end} = Pmsh.tmsh;
-cell_space_1{1,end} = Pspace.spt_vel;
-cell_space_1{2,end} = cell_space_1{1,end};
-cell_space_2{1,end} = Pspace.spt_vel;
-cell_space_2{2,end} = cell_space_2{1,end};
 
-% arrow preconditioner for first compontent of velocity field
-varout1 = generate_heat_pencils(dim, cell_mesh, cell_space_1);
-P1 = arrow_heat_setup(varout1); 
-% arrow preconditioner for second compontent of velocity field 
-varout2 = generate_heat_pencils(dim, cell_mesh, cell_space_2);
-P2 = arrow_heat_setup(varout2); 
+% LU-in-time preconditioner for Stokes
+Pvel = lu_stokes_setup(varout); 
+% Test it with: [sol, flag, rel_res, iter, res_vec] = gmres(Hfun,rhs_vel,[],1e-8, 200, Pvel);
 
-% MASS = 10;%
-
-Pfun = @(x) cat(1, P1(x(1:nintdofs/2)), ...
-                   P2(x(nintdofs/2+1,nintdofs))); %,...
-                  % MASS(x(nintdofs+1:nintdofs+sizep)),...
-                  % x(nintdofs+sizep+1:end));
-
-[sol, flag, rel_res, iter, res_vec] = gmres(Hfun,rhs(1:nintdofs),[],1e-8, 200, @(x) Pfun(x));
-
+% MISSING: Ppres = write mass preconditioner for the pressures
 
 fprintf('Solving the linear system with GMRES... \n\n')
-[sol, flag, rel_res, iter, res_vec] = gmres(Afun, rhs, [], 1e-8, 1000);
+[sol, flag, rel_res, iter, res_vec] = gmres(Afun, rhs, [], 1e-8, 200);
 report.flag    = flag;
 report.rel_res = rel_res;
 report.iter    = iter;
