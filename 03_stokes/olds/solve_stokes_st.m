@@ -15,7 +15,7 @@ xtgeo = geo_load(geo_space_time);
 
 geo.tgeo = tgeo; geo.xgeo = xgeo; geo.xtgeo = xtgeo;
 
-[~, zeta] = kntrefine (xtgeo.nurbs.knots, nsub-1, degree, regularity);
+[~, zeta] = kntrefine (xtgeo.nurbs.knots, nsub-1, trial_degree, trial_regularity);
 rule      = msh_gauss_nodes (nquad);
 [qn, qw]  = msh_set_quad_nodes (zeta, rule);
 
@@ -25,17 +25,17 @@ xtmsh     = msh_cartesian (zeta, qn, qw, xtgeo);
 
 msh.tmsh = tmsh; msh.xmsh = xmsh; msh.xtmsh = xtmsh;
 
-knots_pt = kntrefine (tgeo.nurbs.knots, nsub(end)-1, degree(end), regularity(end));
-knots_ptp1 = kntrefine (tgeo.nurbs.knots, nsub(end)-1, degree(end)+1, regularity(end)+1);
-spt_p = sp_bspline (knots_pt, degree(end), tmsh);
-spt_pp1  = sp_bspline (knots_ptp1, degree(end)+1, tmsh);
+knots_pt = kntrefine (tgeo.nurbs.knots, nsub(end)-1, trial_degree(end), trial_regularity(end));
+knots_ptp1 = kntrefine (tgeo.nurbs.knots, nsub(end)-1, trial_degree(end)+1, trial_regularity(end)+1);
+spt_p = sp_bspline (knots_pt, trial_degree(end), tmsh);
+spt_pp1  = sp_bspline (knots_ptp1, trial_degree(end)+1, tmsh);
 
-degree_p = degree(1:end-1);
-regularity_p = regularity(1:end-1);
+degree_p = trial_degree(1:end-1);
+regularity_p = trial_regularity(1:end-1);
 nsub_p = nsub(1:end-1);
 knots_p = kntrefine (xgeo.nurbs.knots, nsub_p-1, degree_p, regularity_p);
-spp = sp_bspline (knots_p, degree(1:end-1), xmsh);
-xtspp = sp_bspline ([knots_p(:)' {knots_pt}], degree, xtmsh);
+spp = sp_bspline (knots_p, trial_degree(1:end-1), xmsh);
+xtspp = sp_bspline ([knots_p(:)' {knots_pt}], trial_degree, xtmsh);
 
 degree_v = degree_p + 1; 
 regularity_v = regularity_p;

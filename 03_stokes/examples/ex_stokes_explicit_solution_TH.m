@@ -14,7 +14,7 @@ problem_data = computeProblemData2d(sym_velexx,sym_velexy,sym_presex,viscosity);
 
 square = nrbextrude( nrbline ([0 0], [1 0]), [0,1]); % square NURBS surface
 problem_data.geo_time = nrbline ([0 0], [T 0]); % NURBS line in time 
-problem_data.geo_space = 'geo_square.txt'; % square NURBS surface as .txt
+problem_data.geo_space =  square;%'geo_square.txt'; % square NURBS surface as .txt
 problem_data.geo_space_time = nrbextrude(square, [0 0 1]); % NURBS volume
 
 % Dirichlet/Neumann sides only in space
@@ -36,6 +36,10 @@ method_data.nquad      = method_data.trial_degree+2; % number of quadrature poin
 
 % CALL TO THE SOLVER
 [geo, msh, space, vel, pres, report] = stokes_st_solve(problem_data, method_data);
+[geo2, msh2, space2, vel2, pres2, report2] = solve_stokes_st(problem_data, method_data);
+
+report
+report2.solution_details
 
 % Absolute error computation
 % pres_errl2 = st_l2_error_pressures_tp(space.spp,space.spt_pres,msh.xmsh,msh.tmsh,pres,problem_data.presex);
@@ -57,7 +61,7 @@ method_data.nquad      = method_data.trial_degree+2; % number of quadrature poin
 % save(filname)
 
 %% post-processing
-nframes = 11;
-plot_vel_pres(vel, pres, space, geo, nframes, 'explicit_solution');
-plot_exact_vel_pres(problem_data, geo, nframes, 'exact_explicit_solution');
-
+% nframes = 11;
+% plot_vel_pres(vel, pres, space, geo, nframes, 'explicit_solution');
+% plot_exact_vel_pres(problem_data, geo, nframes, 'exact_explicit_solution');
+% 

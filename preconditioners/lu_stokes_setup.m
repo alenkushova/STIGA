@@ -20,7 +20,7 @@
 % MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 % See <https://www.gnu.org/licenses/> for more details.
 
-function prec = lu_stokes_setup(inputcell)
+function [precv, precp] = lu_stokes_setup(inputcell)
  % store the elements into variables with cell's lables
  names = cell2struct(inputcell(2,:), inputcell(1,:), 2); 
  data_names = fieldnames (names);
@@ -29,25 +29,37 @@ function prec = lu_stokes_setup(inputcell)
  end
  % Defoult 
  Dx = 0; Dy = 0; Dz = 0; 
+ Dxp = 1; Dyp = 1; Dzp = 1; 
+ dx2 = decomposition(1);  dx3 = decomposition(1); 
  Ux = 1; Uy = 1; Uz = 1; 
  % Fast diagonalization in univariate space direction (SETUP) 
  [Ux, Dx] = eig(full(Asx),full(Msx),'vector');  
+ Dxp = full(diag(Msxp));
+ dx1 = decomposition(Msxp,'banded','CheckCondition',false);
  dim = 1;
  if exist('Asy')
   [Uy, Dy] = eig(full(Asy),full(Msy),'vector');
+  Dyp = full(diag(Msyp));
+  dx2 = decomposition(Msyp,'banded','CheckCondition',false);
   dim = 2;
   if exist('Asz')
   [Uz, Dz] = eig(full(Asz),full(Msz),'vector');
+  Dzp = full(diag(Msxp));
+  dx3 = decomposition(Mszp,'banded','CheckCondition',false);
   dim = 3;
   end
  end
  Ds = reshape(Dz+Dy'+reshape(Dx,1,1,[]),[],1);
+ Dsp = reshape(Dzp.*Dyp'.*reshape(Dxp,1,1,[]),[],1);
+ Scaling = sqrt(Dsp./DMspF);
+ dxt = decomposition(Mt , 'banded','CheckCondition',false);
  Ut = speye(size(At,1)*dim);
  % Define block diagonal matrix (At x Id + Mt x Ds) 
  B  = kron(speye(numel(Ds)),kron(At,eye(dim))) + kron(speye(numel(Ds)).*Ds,kron(Mt,eye(dim)));
  % N.B. now time is first direction hence we use 'permute' in the
  % application of the preconditioner
  dB = decomposition(B,'banded','CheckCondition',false);
- prec = @(v) lu_stokes_application(dB, Ux, Uy, Uz, Ut, v);
+ precv = @(v) lu_stokes_application(dB, Ux, Uy, Uz, Ut, v);
+ precp = @(v) lu_stokes_pressure_application(dx1,dx2,dx3,dxt,Scaling,v);
 end
 
