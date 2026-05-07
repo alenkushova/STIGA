@@ -304,4 +304,7 @@ fprintf('Done. \n\n')
 vel(int_dofs) = sol(1:nintdofs);
 pres = sol(nintdofs+1:nintdofs+sizep);
 
+report.A = Afun;
+report.rhs = rhs;
+report.Precondizionatore = P;
 end

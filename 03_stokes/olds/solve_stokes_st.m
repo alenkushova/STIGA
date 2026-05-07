@@ -54,17 +54,14 @@ space.spp = spp;
 space.spv = spv; 
 
 fprintf('Assembling space factor matrices... \n\n') 
-tic;
 Kx = op_gradu_gradv_tp (spv, spv, xmsh, viscosity); 
 Mx = op_u_v_tp (spv, spv, xmsh); 
 Dx = op_div_v_q_tp (spv, spp, xmsh);
 Mxp= op_u_v_tp (spp, spp, xmsh); 
-report.space_factors = toc;
+
 fprintf('Assembling time factor matrices... \n\n')
-tic; 
 Mt = op_u_v_tp (spt_p, spt_p, tmsh);
 Wt = op_vel_dot_gradu_v_tp (spt_p, spt_p, tmsh, @(x) ones(size(x)));% (dt u, v)
-report.time_factors = toc;
 
 % a  = [1; zeros(size(Mt,1)-1,1)]; 
 % At = spdiags(a,0,numel(a),numel(a));
@@ -72,13 +69,10 @@ report.time_factors = toc;
 % kron(Wt+At,Mx) ma allora posso prima prendere questo: 
 Wt(1,1) = Wt(1,1)+1; % perchè tutto il resto fa zero!
 fprintf('Assembling A... \n\n')
-tic;
 A  = kron(Mt,Kx) + kron(Wt,Mx); % matrice totale assemblata. 
-report.matrix_A = toc;
+
 fprintf('Assembling B... \n\n')
-tic;
 B  = kron(Mt,Dx); B = -B; % pressures = 0 at t=0.
-report.matrix_B = toc;
 
 vel  = zeros(spv.ndof*spt_p.ndof,1); 
 full_drchlt_dofs = [];
@@ -92,9 +86,7 @@ if exist('ifun','var')
   end
   vel = vel(:);
 else 
-  tic;  
   [vel_drchlt, full_drchlt_dofs, vel_iniz] = st_stokes_boundary_data(spv, spt_p, xmsh, tmsh, dfun, drchlt_sides,'yes');
-  report.boundary_data = toc;
   % notice 'yes'  is an optional variable (default 'no'). It referst to the
   % question: Is the inital condition applied weakly? Usually no, here yes!
   % If yes, then the first face of the ST-cuboid is to be considered part
@@ -108,9 +100,7 @@ nintdofs = numel(int_dofs);
 
 if exist('f','var')
     fprintf('Assembling right hand side f... \n\n')
-    tic;
     rhs_vel = op_f_v_st_tp(spv,spt_p,xmsh,tmsh,f);
-    report.vector_f = toc;
 else
     rhs_vel = zeros(spv.ndof*spt_p.ndof,1);
 end        
@@ -125,24 +115,24 @@ fun_one = @(varargin) ones(size(varargin{1}));
 E = op_f_v_tp (spp, xmsh, fun_one).';       
 
 fprintf('Assembling the whole space time matrix + constraint on pressure average... \n\n')
-tic;
 mat = [A(int_dofs, int_dofs)       B(:,int_dofs)'               sparse(nintdofs,size(Mt,1)) ; ...
        B(:,int_dofs)               sparse(size(B,1),size(B,1))  (kron(Mt,E))'; ...
        sparse(size(Mt,1),nintdofs) kron(Mt,E)                   sparse(size(Mt,1),size(Mt,1)) ];
-report.whole_matrix = toc;
 
 P = blkdiag(A(int_dofs,int_dofs),kron(Mt,Mxp),speye(size(Mt)));
 
 %fprintf('Solving the linear system with matrix backslash... \n\n')
-tic;
 %sol = mat\[rhs;zeros(spt_p.ndof,1)];
 fprintf('Solving the linear system with preconditioned GMRES... \n\n')
 [sol, flag, rel_res, iter, res_vec] = gmres(mat,[rhs;zeros(spt_p.ndof,1)],[],1e-8,200,P);
-report.solving_time = toc;
-report.solution_details.flag = flag;
-report.solution_details.rel_res = rel_res;
-report.solution_details.iter = iter;
-report.solution_details.res_vec = res_vec;
+report.flag = flag;
+report.rel_res = rel_res;
+report.iter = iter;
+report.res_vec = res_vec;
+
+report.A = mat;
+report.rhs = [rhs;zeros(spt_p.ndof,1)];
+report.Precondizionatore = P;
 
 fprintf('Done. \n\n')
 vel(int_dofs) = sol(1:nintdofs);

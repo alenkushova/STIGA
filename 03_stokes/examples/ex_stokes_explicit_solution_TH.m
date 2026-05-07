@@ -39,7 +39,7 @@ method_data.nquad      = method_data.trial_degree+2; % number of quadrature poin
 [geo2, msh2, space2, vel2, pres2, report2] = solve_stokes_st(problem_data, method_data);
 
 report
-report2.solution_details
+report2
 
 % Absolute error computation
 % pres_errl2 = st_l2_error_pressures_tp(space.spp,space.spt_pres,msh.xmsh,msh.tmsh,pres,problem_data.presex);
