@@ -269,9 +269,9 @@ varout{1,end+1} = 'DMspF'; varout{2,end} = diag(Mxp);
 [Pvel, Ppres]= lu_stokes_setup(varout); 
 
 % Test it with: 
-% [sol, flag, rel_res, iter, res_vec] = gmres(Hfun,rhs_vel,[],1e-8, 200, Pvel);
+% [sol, flag, rel_res, iter, res_vec] = gmres(Hfun,rand(size(rhs_vel)),[],1e-8, 200, Pvel);
 % M = kron(Mt,Mxp);
-% [sol, flag, rel_res, iter, res_vec] = gmres(M,1+rhs_pres,[],1e-8, 200, Ppres);
+% [sol, flag, rel_res, iter, res_vec] = gmres(M,rand(size(rhs_pres)),[],1e-8, 200, Ppres);
 % you must get the exact solution in 1 iteration.
 
 
@@ -289,12 +289,19 @@ varout{1,end+1} = 'DMspF'; varout{2,end} = diag(Mxp);
 %       |____________|_______|___1|
 %
 % we define its forward application as follows
- P = @(x) cat(1, Pvel (x(1:nintdofs)) ,...
-                 Ppres(x(nintdofs+1:nintdofs+sizep)),...
-                 (x(nintdofs+ sizep +1:end)));
+
+% For debug you may need :
+%     A = kron(Mt,Kx(x_int_dofs,x_int_dofs)) + kron(Wt,Mx(x_int_dofs,x_int_dofs));  
+% and
+%     M = kron(Mt,Mxp);
+
+P = @(x) cat(1, Pvel(x(1:nintdofs)) ,...
+                Ppres(x(nintdofs+1:nintdofs+sizep)),...
+                (x(nintdofs+ sizep +1:end)));
+
 
 fprintf('Solving the linear system with GMRES... \n\n')
-[sol, flag, rel_res, iter, res_vec] = gmres(Afun, rhs, [], 1e-8, 600, P);
+[sol, flag, rel_res, iter, res_vec] = gmres(Afun, rhs, [], 1e-8, 200, P);
 report.flag    = flag;
 report.rel_res = rel_res;
 report.iter    = iter;
@@ -306,5 +313,5 @@ pres = sol(nintdofs+1:nintdofs+sizep);
 
 report.A = Afun;
 report.rhs = rhs;
-report.Precondizionatore = P;
+report.Prec = P;
 end

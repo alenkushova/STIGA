@@ -21,13 +21,14 @@
 % See <https://www.gnu.org/licenses/> for more details.
 
 function u_lu = lu_stokes_application(lu_B,Ux,Uy,Uz,Ut,rhs)
+
 nsx = size(Ux,1); nsy = size(Uy,1); nsz = size(Uz,1);
 nt  = size(Ut,1);
+
 % STEP 1
 tilde_rhs = tmprod(reshape(rhs,nsx,nsy,nsz,nt), {Ux' Uy' Uz' Ut'}, 1:4);  
-tilde_rhs = reshape (permute(tilde_rhs,[4 1 2 3]), nt*nsx*nsy*nsz,1);
+tilde_rhs = reshape (permute(tilde_rhs,[4 1 2 3]), [],1);
 % STEP 2
-% tilde_u = pagemldivide(At + (bsxfun(@times, reshape(Ds,1,1,nsx*nsy*nsz), full(Mt))), tilde_rhs);
 tilde_u = lu_B\tilde_rhs;
 % STEP 3
 new_tilde_u = reshape(permute(reshape(tilde_u,nt,nsx,nsy,nsz),[2 3 4 1]), nsx, nsy, nsz, nt);

@@ -38,7 +38,7 @@ function prec = arrow_heat_setup(inputcell)
   [Uz, Dz] = eig(full(Asz),full(Msz),'vector');
   end
  end
- Ds = reshape(Dz+Dy'+reshape(Dx,1,1,[]),[],1);
+ Ds = reshape(Dx+Dy'+reshape(Dz,1,1,[]),[],1);
  % Time factorization
  Wt0= At(1:end-1,1:end-1); %dati interni
  Mt0= Mt(1:end-1,1:end-1); %dati interni

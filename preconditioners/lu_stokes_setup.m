@@ -49,8 +49,8 @@ function [precv, precp] = lu_stokes_setup(inputcell)
   dim = 3;
   end
  end
- Ds = reshape(Dz+Dy'+reshape(Dx,1,1,[]),[],1);
- Dsp = reshape(Dzp.*Dyp'.*reshape(Dxp,1,1,[]),[],1);
+ Ds = reshape(Dx+Dy'+reshape(Dz,1,1,[]),[],1);
+ Dsp = reshape(Dxp.*Dyp'.*reshape(Dzp,1,1,[]),[],1);
  Scaling = sqrt(Dsp./DMspF);
  dxt = decomposition(Mt , 'banded','CheckCondition',false);
  Ut = speye(size(At,1)*dim);

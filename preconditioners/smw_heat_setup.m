@@ -40,7 +40,7 @@ function prec = smw_heat_setup(inputcell)
   [Uz, Dz] = eig(full(Asz),full(Msz),'vector');
   end
  end
- Ds = reshape(Dz+Dy'+reshape(Dx,1,1,[]),[],1);
+ Ds = reshape(Dx+Dy'+reshape(Dz,1,1,[]),[],1);
 
 % RANK = 2; % by defoult for our strategy...
 

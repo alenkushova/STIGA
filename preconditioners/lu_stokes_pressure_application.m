@@ -26,7 +26,7 @@ nsx = dx1.MatrixSize(1); nsy = dx2.MatrixSize(1); nsz = dx3.MatrixSize(1);
 nt  = dxt.MatrixSize(1);
 
 % applichiamo l'inversa in tempo della massa.
-V = reshape(v,nsx,nsy,nsz,nt);
+v = reshape(v,nsx,nsy,nsz,nt);
 v = permute(v,[4 1 2 3]);
 v = dxt\reshape(v,nt,[]);
 
@@ -49,6 +49,7 @@ v = reshape(v,nsy,nsz,nt,nsx);
 % apply inverse of Mx
 v = permute(v,[4 1 2 3]);
 v = dx1\reshape(v,nsx,[]);
+v = reshape(v,nsx,nsy,nsz,nt);
 
 % scaling diagonale in spazio
 u = Scaling.*reshape(v,nsx*nsy*nsz,nt);

@@ -36,10 +36,10 @@ method_data.nquad      = method_data.trial_degree+2; % number of quadrature poin
 
 % CALL TO THE SOLVER
 [geo, msh, space, vel, pres, report] = stokes_st_solve(problem_data, method_data);
-[geo2, msh2, space2, vel2, pres2, report2] = solve_stokes_st(problem_data, method_data);
+% [geo2, msh2, space2, vel2, pres2, report2] = solve_stokes_st(problem_data, method_data);
 
 report
-report2
+%report2
 
 % Absolute error computation
 % pres_errl2 = st_l2_error_pressures_tp(space.spp,space.spt_pres,msh.xmsh,msh.tmsh,pres,problem_data.presex);
@@ -61,7 +61,7 @@ report2
 % save(filname)
 
 %% post-processing
-% nframes = 11;
-% plot_vel_pres(vel, pres, space, geo, nframes, 'explicit_solution');
-% plot_exact_vel_pres(problem_data, geo, nframes, 'exact_explicit_solution');
-% 
+nframes = 11;
+plot_vel_pres(vel, pres, space, geo, nframes, 'explicit_solution');
+plot_exact_vel_pres(problem_data, geo, nframes, 'exact_explicit_solution');
+

@@ -38,7 +38,7 @@ function prec = lu_heat_setup(inputcell)
   [Uz, Dz] = eig(full(Asz),full(Msz),'vector');
   end
  end
- Ds = reshape(Dz+Dy'+reshape(Dx,1,1,[]),[],1);
+ Ds = reshape(Dx+Dy'+reshape(Dz,1,1,[]),[],1);
  % Define block diagonal matrix (At x Id + Mt x Ds) 
  B  = kron(speye(numel(Ds)), At) + kron(speye(numel(Ds)).*Ds, Mt);
  % N.B. now time is first direction hence we use 'permute' in the
