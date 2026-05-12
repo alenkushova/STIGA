@@ -1,5 +1,7 @@
+clear; close all; 
 T = 1; % final time 
-n = 5; % number of subdivisions in space
+ns = 5; % number of subdivisions in space
+nt = 5; % number of subdivisions in space
 d = 1; % polynomial degree of pressure space
 
 viscosity = 1; % funzione costante
@@ -24,44 +26,43 @@ problem_data.nmnn_sides = [];
 % viscosity of the fluid
 problem_data.viscosity =  @(x, y) ones (size (x)); 
  
+% Initial term to be projected 
+problem_data.ifun= @(x, y) problem_data.velex(x,y,0);
+
 % Dirichlet data 
 problem_data.dfun = @(x,y,t,iside) problem_data.velex(x,y,t);
+%problem_data.h = @(x,y,iside) problem_data.dfun(x,y,0);
 
 method_data.trial_degree     = [d d d];  % degree of the trial pressure space 
 method_data.trial_regularity = method_data.trial_degree-1; % regularity of the trial pressure space
 method_data.test_degree     = [d d d];  % degree of the trial pressure space 
 method_data.test_regularity = method_data.test_degree-1; % regularity of the trial pressure space
-method_data.nsub       = [n n n];  % number of subdivisions 
+method_data.nsub       = [ns ns nt];  % number of subdivisions 
 method_data.nquad      = method_data.trial_degree+2; % number of quadrature points (+2 cuz vel \in degree+1)
 
 % CALL TO THE SOLVER
 [geo, msh, space, vel, pres, report] = stokes_st_solve(problem_data, method_data);
-% [geo2, msh2, space2, vel2, pres2, report2] = solve_stokes_st(problem_data, method_data);
 
 report
-%report2
 
-% Absolute error computation
-% pres_errl2 = st_l2_error_pressures_tp(space.spp,space.spt_pres,msh.xmsh,msh.tmsh,pres,problem_data.presex);
-% [vel_errl2, vel_errh1s, vel_errh1t] = st_h1_error_tp(space.spv, space.spt_vel, msh.xmsh, msh.tmsh, ...
-%     vel, problem_data.velex, problem_data.dt_velex, problem_data.grad_velex);
-% 
-% % Norm of exact solutions
-% presex_l2norm = st_l2_error_pressures_tp(space.spp,space.spt_pres,msh.xmsh,msh.tmsh,0*pres,problem_data.presex);
-% [velex_l2norm, velex_sh1norm, velex_th1norm] = st_h1_error_tp(space.spv, space.spt_vel, msh.xmsh, msh.tmsh, ...
-%     0*vel, problem_data.velex, problem_data.dt_velex, problem_data.grad_velex);
-% 
-% pres_errl2_rel = pres_errl2/presex_l2norm;
-% vel_errl2_rel  = vel_errl2/velex_l2norm;
-% vel_errh1s_rel = vel_errh1s/velex_sh1norm;
-% vel_errh1t_rel = vel_errh1t/velex_th1norm;
-% 
-% %filname = ['Explicit_solution_TH_results_d=' num2str(d) '_n=' num2str(n) '_T=1.mat'];
-% filname = ['Explicit_solution_TH_gmres_results_d=' num2str(d) '_n=' num2str(n) '_T=1.mat'];
-% save(filname)
+%% Absolute error computation
+pres_errl2 = st_l2_error_pressures_tp(space.spp,space.spt_pres,msh.xmsh,msh.tmsh,pres,problem_data.presex);
+[vel_errl2, vel_errh1s, vel_errh1t] = st_h1_error_tp(space.spv, space.spt_vel, msh.xmsh, msh.tmsh, ...
+    vel, problem_data.velex, problem_data.dt_velex, problem_data.grad_velex);
 
-%% post-processing
+% Norm of exact solutions
+presex_l2norm = st_l2_error_pressures_tp(space.spp,space.spt_pres,msh.xmsh,msh.tmsh,0*pres,problem_data.presex);[velex_l2norm, velex_sh1norm, velex_th1norm] = st_h1_error_tp(space.spv, space.spt_vel, msh.xmsh, msh.tmsh, ...
+    0*vel, problem_data.velex, problem_data.dt_velex, problem_data.grad_velex);
+
+pres_errl2_rel = pres_errl2/presex_l2norm;
+vel_errl2_rel  = vel_errl2/velex_l2norm;
+vel_errh1s_rel = vel_errh1s/velex_sh1norm;
+vel_errh1t_rel = vel_errh1t/velex_th1norm;
+
+filname = ['Explicit_solution_TH_gmres_results_d=' num2str(d) '_n=' num2str(ns) '_T=1.mat'];
+save(filname)
+
+% post-processing
 nframes = 11;
 plot_vel_pres(vel, pres, space, geo, nframes, 'explicit_solution');
-plot_exact_vel_pres(problem_data, geo, nframes, 'exact_explicit_solution');
-
+% plot_exact_vel_pres(problem_data, geo, nframes, 'exact_explicit_solution');

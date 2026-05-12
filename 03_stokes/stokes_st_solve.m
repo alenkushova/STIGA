@@ -113,7 +113,7 @@ vel  = zeros(sizev,1);
 
 fprintf('Projecting boundary conditions... \n\n') 
 % we impose boundary conditions and here we deal initial conditions weakly
-[vel_drchlt, full_drchlt_dofs, vel_iniz] = st_stokes_boundary_data(space_v.spv, space_v.spt_vel, msh.xmsh, msh.tmsh, dfun, drchlt_sides,'yes');
+[vel_drchlt, full_drchlt_dofs, vel_iniz] = st_stokes_boundary_data(space_v.spv, space_v.spt_vel, msh.xmsh, msh.tmsh, ifun, dfun, drchlt_sides,'yes');
 vel(full_drchlt_dofs) = vel_drchlt;
 % notice 'yes'  is an optional variable (default 'no'). It referst to the
 % question: Is the inital condition applied weakly? Usually no, here yes!
@@ -123,9 +123,9 @@ vel(full_drchlt_dofs) = vel_drchlt;
 
 % Now we compute only the space-boundary degrees of freedom
 if dim == 2
-[~, x_drchlt_dofs] = sp_drchlt_l2_proj (space_v.spv, msh.xmsh, @(x, y, iside) velex(x,y,0), drchlt_sides);
+[~, x_drchlt_dofs] = sp_drchlt_l2_proj (space_v.spv, msh.xmsh, @(x, y, iside) dfun(x,y,0,iside), drchlt_sides);
 elseif dim == 3
-[~, x_drchlt_dofs] = sp_drchlt_l2_proj (space_v.spv, msh.xmsh, @(x, y, z, iside) velex(x,y,z,0), drchlt_sides);
+[~, x_drchlt_dofs] = sp_drchlt_l2_proj (space_v.spv, msh.xmsh, @(x, y, z, iside) dfun(x,y,z,0,iside), drchlt_sides);
 end
 x_int_dofs = setdiff (1:space_v.spv.ndof, x_drchlt_dofs); 
 int_dofs = setdiff(1:sizev,full_drchlt_dofs);
@@ -311,7 +311,7 @@ fprintf('Done. \n\n')
 vel(int_dofs) = sol(1:nintdofs);
 pres = sol(nintdofs+1:nintdofs+sizep);
 
-report.A = Afun;
-report.rhs = rhs;
-report.Prec = P;
+% report.A = Afun;
+% report.rhs = rhs;
+% report.Prec = P;
 end

@@ -7,6 +7,8 @@ function [errl2, errh1s, errh1t] = st_h1_error_tp(spaceS,spaceT,mshS,mshT,v,vex,
   errl2 = 0;
   errh1t = 0;
   errh1s = 0;
+
+  h = waitbar(0, 'Computing H1-errors...');
   
   for iel = 1:mshS.nel_dir(1)
     msh_col = msh_evaluate_col (mshS, iel);
@@ -26,10 +28,16 @@ function [errl2, errh1s, errh1t] = st_h1_error_tp(spaceS,spaceT,mshS,mshT,v,vex,
 
     errh1s = errh1s + (st_seminorm_h1s_error (sp_col,sp_colT,msh_col,msh_colT,v,gradvex(x{:}))).^2;
 
+    % Aggiorna barra
+    progress = iel / mshS.nel_dir(1);
+    waitbar(progress, h, ...
+        sprintf('Computing H1-errors: %.1f %%', progress*100));
   end
   
   errh1s = sqrt(errh1s);
   errh1t = sqrt(errh1t);
   errl2  = sqrt (errl2);
 
+  close(h); %chiude la finestra alla fine.
+  fprintf('H1-errors computed. \n')
 end

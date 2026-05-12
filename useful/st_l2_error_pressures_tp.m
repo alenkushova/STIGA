@@ -4,6 +4,8 @@ function errl2 = st_l2_error_pressures_tp(spaceS,spaceT,mshS,mshT,p,pex)
   end
 
   errl2 = 0;
+  
+  h = waitbar(0, 'Computing L2-error for pressure...');
   for iel = 1:mshT.nel_dir(1)
     msh_colT = msh_evaluate_col (mshT, iel);
     sp_colT  = sp_evaluate_col (spaceT, msh_colT, 'value', true, 'gradient', false);
@@ -21,8 +23,14 @@ function errl2 = st_l2_error_pressures_tp(spaceS,spaceT,mshS,mshT,p,pex)
     coef = pex(x{:})- sum(ws.*pex(x{:}),[1,2]);
 
     errl2 = errl2 + (st_l2_error (sp_col,sp_colT,msh_col,msh_colT,p,coef)).^2;
+
+    % Aggiorna barra
+    progress = iel / mshT.nel_dir(1);
+    waitbar(progress, h, ...
+        sprintf('Computing L2-error for pressure: %.1f %%', progress*100));
   end
   
   errl2 = sqrt (errl2);
-
+  close(h); %chiude la finestra alla fine.
+  fprintf('L2-error for pressure computed. \n')
 end
